@@ -283,6 +283,9 @@ tr:hover td{background:rgba(255,255,255,.012)}
   /* Settings — stack module rows */
   #modules-list > div { flex-wrap: wrap; }
 
+  /* Show More button on mobile */
+  #more-btn { display: flex !important; }
+
   /* Hide less important table columns on very small screens */
   @media (max-width: 380px) {
     .cards-grid { grid-template-columns: 1fr; }
@@ -337,10 +340,19 @@ tr:hover td{background:rgba(255,255,255,.012)}
   <div class="nav-section">Análisis</div>
   <button class="nav-item" onclick="go('analytics')"><span class="icon">📊</span><span>Análisis</span></button>
   <button class="nav-item" onclick="go('settings')"><span class="icon">⚙️</span><span>Configurar</span></button>
+  <button class="nav-item" id="more-btn" onclick="toggleMoreMenu()" style="display:none;"><span class="icon">⋯</span><span>Más</span></button>
   <button id="install-btn" onclick="installApp()" style="display:none;margin:8px 12px 4px;background:linear-gradient(135deg,#60d4b5,#60a5fa);border:none;border-radius:10px;padding:10px 14px;color:#0d1117;font-weight:700;font-size:12px;cursor:pointer;align-items:center;gap:8px;">
     <span>📲</span><span>Instalar App</span>
   </button>
 </nav>
+
+<!-- Mobile modules drawer -->
+<div id="more-menu" style="display:none;position:fixed;bottom:calc(64px + env(safe-area-inset-bottom));left:0;right:0;background:var(--surface);border-top:1px solid var(--border);border-radius:20px 20px 0 0;padding:16px;z-index:99;box-shadow:0 -8px 32px rgba(0,0,0,0.4);">
+  <div style="width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px;"></div>
+  <div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Módulos</div>
+  <div id="more-menu-items" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
+</div>
+<div id="more-overlay" onclick="toggleMoreMenu()" style="display:none;position:fixed;inset:0;z-index:98;background:rgba(0,0,0,0.4);"></div>
 <div class="main">
 
 <!-- DASHBOARD -->
@@ -937,8 +949,30 @@ function go(id){
 // MODULES
 function renderSidebarModules(){
   const el=document.getElementById('sidebar-modules');
-  if(!el)return;
-  el.innerHTML=S.modules.filter(m=>m.active).map(m=>`<button class="nav-item" onclick="go('${m.id}')"><span class="icon">${m.emoji}</span><span>${m.name}</span></button>`).join('');
+  const moreItems=document.getElementById('more-menu-items');
+  const moreBtn=document.getElementById('more-btn');
+  const activeModules=S.modules.filter(m=>m.active);
+
+  // Desktop sidebar
+  if(el)el.innerHTML=activeModules.map(m=>`<button class="nav-item" onclick="go('${m.id}')"><span class="icon">${m.emoji}</span><span>${m.name}</span></button>`).join('');
+
+  // Mobile drawer
+  if(moreItems)moreItems.innerHTML=activeModules.map(m=>`
+    <button onclick="go('${m.id}');toggleMoreMenu();" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text2);font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;">
+      <span style="font-size:24px;">${m.emoji}</span>
+      <span>${m.name}</span>
+    </button>`).join('');
+
+  // Show More button on mobile only if there are modules
+  if(moreBtn)moreBtn.style.display=activeModules.length>0?'':'none';
+}
+
+function toggleMoreMenu(){
+  const menu=document.getElementById('more-menu');
+  const overlay=document.getElementById('more-overlay');
+  const isOpen=menu.style.display!=='none';
+  menu.style.display=isOpen?'none':'block';
+  overlay.style.display=isOpen?'none':'block';
 }
 
 function renderSettings(){
