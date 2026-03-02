@@ -141,10 +141,191 @@ tr:hover td{background:rgba(255,255,255,.012)}
 .whatsapp-note{background:linear-gradient(135deg,rgba(134,239,172,0.07),rgba(134,239,172,0.02));border:1px solid var(--mint-border);border-radius:var(--radius);padding:17px;margin-bottom:17px}
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ─── MOBILE / PWA ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+
+  /* Safe area for iPhone notch & home bar */
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* App shell — stack vertically */
+  .app { flex-direction: column; min-height: 100dvh; }
+
+  /* ── Bottom navigation bar ── */
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    top: auto;
+    flex-direction: row;
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+    border-right: none;
+    border-top: 1px solid var(--border);
+    background: rgba(13,17,23,0.96);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 2px;
+    z-index: 100;
+    justify-content: space-around;
+  }
+
+  /* Hide logo, section headers, sidebar modules div, install btn in mobile nav */
+  .sidebar .logo,
+  .sidebar .nav-section,
+  .sidebar #sidebar-modules,
+  .sidebar #install-btn { display: none !important; }
+
+  /* Nav items — icon + tiny label, vertical */
+  .nav-item {
+    flex-direction: column;
+    gap: 3px;
+    padding: 6px 8px;
+    font-size: 10px;
+    min-width: 52px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    flex: 1;
+  }
+  .nav-item .icon { font-size: 20px; width: auto; }
+  .nav-item span:last-child { font-size: 9px; line-height: 1; }
+  .nav-item.active { background: var(--rose-dim); }
+
+  /* Main content — add bottom padding so content isn't behind nav */
+  .main {
+    flex: 1;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+  }
+
+  /* Pages */
+  .page { padding: 18px 16px 24px; }
+  .page-title { font-size: 22px; margin-bottom: 3px; }
+  .page-subtitle { font-size: 12px; margin-bottom: 18px; }
+
+  /* Cards — single column, bigger touch targets */
+  .cards-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .card { padding: 13px 14px; border-radius: 13px; }
+  .card-value { font-size: 18px; }
+  .card-label { font-size: 9px; }
+
+  /* Two-col → single col */
+  .two-col { grid-template-columns: 1fr; gap: 12px; }
+
+  /* Chart grid → single col */
+  .chart-grid { grid-template-columns: 1fr; gap: 12px; }
+
+  /* Tables — horizontal scroll, bigger touch rows */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 12px; }
+  table { min-width: 500px; }
+  td, th { padding: 10px 12px; font-size: 12px; }
+
+  /* Forms */
+  .form-card { padding: 14px; border-radius: 13px; }
+  .form-grid { grid-template-columns: 1fr; gap: 10px; }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 11px 13px;
+    font-size: 15px; /* prevents iOS auto-zoom */
+    border-radius: 10px;
+  }
+  .btn { padding: 11px 18px; font-size: 14px; border-radius: 10px; }
+  .btn-sm { padding: 7px 12px; font-size: 12px; }
+  .btn-row { gap: 8px; }
+
+  /* Chat */
+  .chat-messages { height: 240px; }
+  .chat-input-row input { font-size: 15px; padding: 10px 13px; }
+  .chat-examples { gap: 5px; padding: 8px 12px; }
+  .example-pill { font-size: 11px; padding: 5px 10px; }
+
+  /* Oxford banner */
+  .oxford-banner { padding: 15px; }
+  .oxford-banner::after { font-size: 36px; opacity: .08; }
+
+  /* Timeline */
+  .timeline-item { gap: 10px; }
+  .timeline-dot { width: 28px; height: 28px; font-size: 13px; }
+  .timeline-content { padding: 11px 13px; }
+  .timeline-title { font-size: 13px; }
+  .timeline-body { font-size: 12px; }
+
+  /* Goal cards */
+  .goal-card { padding: 14px; }
+
+  /* Tip / alert */
+  .tip { font-size: 12px; padding: 10px 13px; }
+  .alert { font-size: 12px; padding: 10px 12px; }
+
+  /* Section title */
+  .section-title { font-size: 15px; }
+
+  /* Budget summary cards — 2 col on mobile */
+  #budget-summary-cards { grid-template-columns: 1fr 1fr; }
+
+  /* Plan KPIs — 2 col */
+  #plan-kpis { grid-template-columns: 1fr 1fr; }
+
+  /* Modals / add-item forms */
+  #budget-add-item { margin-top: 12px; }
+
+  /* Settings — stack module rows */
+  #modules-list > div { flex-wrap: wrap; }
+
+  /* Hide less important table columns on very small screens */
+  @media (max-width: 380px) {
+    .cards-grid { grid-template-columns: 1fr; }
+    #budget-summary-cards { grid-template-columns: 1fr; }
+    #plan-kpis { grid-template-columns: 1fr; }
+  }
+}
+
+/* ─── Top header bar on mobile (shows current page title) ─── */
+@media (max-width: 768px) {
+  .mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px calc(12px + env(safe-area-inset-top));
+    padding-top: calc(12px + env(safe-area-inset-top));
+    background: rgba(13,17,23,0.96);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 99;
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    color: var(--text);
+  }
+  .mobile-header .mh-logo { color: var(--teal); font-size: 15px; }
+}
+@media (min-width: 769px) {
+  .mobile-header { display: none; }
+}
 </style>
 </head>
 <body>
 <div class="app">
+
+<!-- Mobile top header (hidden on desktop) -->
+<div class="mobile-header" id="mobile-header">
+  <span class="mh-logo">🌊 Mi Dinero</span>
+  <span id="mobile-page-title" style="color:var(--text2);font-size:14px;font-family:'DM Sans',sans-serif;font-weight:600;">Dashboard</span>
+</div>
+
 <nav class="sidebar">
   <div class="logo">Noriana 🌊<span>Tracker Financiero 2026</span></div>
   <button class="nav-item active" onclick="go('dashboard')"><span class="icon">🏠</span><span>Dashboard</span></button>
@@ -739,12 +920,18 @@ function save(){localStorage.setItem('nori_v4',JSON.stringify(S));}
 
 // NAV
 const RENDERS={dashboard:renderDash,chat:renderChatHistory,plan:renderPlan,transactions:renderTxs,savings:renderGoals,debts:renderDebts,mortgage:renderMort,budget:renderBudget,analytics:renderAnalytics,settings:renderSettings};
+const PAGE_TITLES={dashboard:'Dashboard',chat:'Registrar',plan:'Plan de Pagos',transactions:'Transacciones',savings:'Oxford Fund',debts:'TC UNFCU',mortgage:'Hipoteca',budget:'Presupuestos',analytics:'Análisis',settings:'Configurar'};
 function go(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
   const b=document.querySelector(`[onclick="go('${id}')"]`);if(b)b.classList.add('active');
+  // Update mobile header title
+  const mpt=document.getElementById('mobile-page-title');
+  if(mpt)mpt.textContent=PAGE_TITLES[id]||id;
   if(RENDERS[id])RENDERS[id]();
+  // Scroll to top on mobile
+  document.querySelector('.main')?.scrollTo(0,0);
 }
 
 // MODULES
