@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Mi Dinero · Noriana</title>
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#60d4b5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mi Dinero">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<!-- /PWA -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+:root {
+  --bg:#0d1117; --surface:#131c27; --surface2:#1a2535; --surface3:#1f2d3d;
+  --border:#243447; --border2:#2e4460;
+  --rose:#60d4b5; --rose-dim:rgba(96,212,181,0.12); --rose-border:rgba(96,212,181,0.28);
+  --lav:#60a5fa; --lav-dim:rgba(96,165,250,0.12); --lav-border:rgba(96,165,250,0.28);
+  --mint:#4ade80; --mint-dim:rgba(74,222,128,0.1); --mint-border:rgba(74,222,128,0.24);
+  --peach:#38bdf8; --peach-dim:rgba(56,189,248,0.1); --peach-border:rgba(56,189,248,0.28);
+  --sky:#818cf8; --sky-dim:rgba(129,140,248,0.1); --sky-border:rgba(129,140,248,0.22);
+  --red:#f87171; --red-dim:rgba(248,113,113,0.1); --red-border:rgba(248,113,113,0.25);
+  --teal:#2dd4bf;
+  --text:#e2eaf5; --text2:#a8bdd6; --muted:#5a7a99;
+  --radius:16px; --radius-sm:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;
+  background-image:radial-gradient(ellipse at 20% 0%,rgba(96,165,250,0.07) 0%,transparent 60%),radial-gradient(ellipse at 80% 100%,rgba(96,212,181,0.05) 0%,transparent 60%)}
+.app{display:flex;min-height:100vh}
+.sidebar{width:228px;background:var(--surface);border-right:1px solid var(--border);padding:22px 13px;display:flex;flex-direction:column;gap:3px;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.logo{font-family:'Fraunces',serif;font-size:19px;color:var(--teal);padding:0 10px 18px;border-bottom:1px solid var(--border);margin-bottom:8px}
+.logo span{color:var(--muted);font-size:10px;display:block;font-family:'DM Sans',sans-serif;margin-top:3px;font-weight:400}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius-sm);cursor:pointer;transition:all .15s;color:var(--muted);font-weight:500;font-size:13px;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--surface2);color:var(--text2)}
+.nav-item.active{background:var(--rose-dim);color:var(--teal);border:1px solid var(--rose-border)}
+.nav-item .icon{font-size:15px;width:20px;text-align:center}
+.nav-section{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);padding:13px 12px 4px;font-weight:600}
+.main{flex:1;overflow-y:auto}
+.page{display:none;padding:30px 34px;animation:fade-in .2s ease}
+.page.active{display:block}
+@keyframes fade-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.page-title{font-family:'Fraunces',serif;font-size:29px;color:var(--text);margin-bottom:4px;letter-spacing:-.5px}
+.page-subtitle{color:var(--muted);font-size:13px;margin-bottom:26px}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:13px;margin-bottom:22px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:17px 19px}
+.card-label{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1.2px;font-weight:600;margin-bottom:7px}
+.card-value{font-size:21px;font-weight:700;font-family:'Fraunces',serif}
+.card-sub{color:var(--muted);font-size:11px;margin-top:4px}
+.card-rose{background:var(--rose-dim);border-color:var(--rose-border)}
+.card-lav{background:var(--lav-dim);border-color:var(--lav-border)}
+.card-mint{background:var(--mint-dim);border-color:var(--mint-border)}
+.card-peach{background:var(--peach-dim);border-color:var(--peach-border)}
+.card-sky{background:var(--sky-dim);border-color:var(--sky-border)}
+.card-red{background:var(--red-dim);border-color:var(--red-border)}
+.oxford-banner{background:linear-gradient(135deg,rgba(96,165,250,0.14),rgba(96,212,181,0.07));border:1px solid var(--lav-border);border-radius:var(--radius);padding:22px 24px;margin-bottom:20px;position:relative;overflow:hidden}
+.oxford-banner::after{content:'🎓';position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:52px;opacity:.11}
+.section-title{font-family:'Fraunces',serif;font-size:17px;margin-bottom:11px;color:var(--text2)}
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:11px 15px;background:var(--surface2);color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border)}
+td{padding:10px 15px;border-bottom:1px solid var(--border);font-size:13px}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.012)}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.2px}
+.badge-rose{background:var(--rose-dim);color:var(--rose);border:1px solid var(--rose-border)}
+.badge-lav{background:var(--lav-dim);color:var(--lav);border:1px solid var(--lav-border)}
+.badge-mint{background:var(--mint-dim);color:var(--mint);border:1px solid var(--mint-border)}
+.badge-peach{background:var(--peach-dim);color:var(--peach);border:1px solid var(--peach-border)}
+.badge-sky{background:var(--sky-dim);color:var(--sky);border:1px solid var(--sky-border)}
+.badge-muted{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+.badge-red{background:var(--red-dim);color:var(--red);border:1px solid var(--red-border)}
+.progress-wrap{background:var(--surface3);border-radius:999px;height:7px;overflow:hidden;margin-top:9px}
+.progress-fill{height:100%;border-radius:999px;transition:width .6s ease}
+.form-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:19px;margin-bottom:18px}
+.form-card h3{font-size:13px;margin-bottom:14px;color:var(--lav);font-weight:600}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:11px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.8px}
+.form-group input,.form-group select,.form-group textarea{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 11px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .15s}
+.form-group input:focus,.form-group select:focus{border-color:var(--lav)}
+.form-group select option{background:var(--surface)}
+.btn{padding:8px 17px;border-radius:9px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .15s}
+.btn-rose{background:var(--teal);color:#0d1a16}
+.btn-rose:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.btn-lav{background:var(--lav);color:#100e1e}
+.btn-lav:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.btn-ghost{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal)}
+.btn-danger{background:var(--red-dim);color:var(--red);border:1px solid var(--red-border)}
+.btn-sm{padding:4px 10px;font-size:11px}
+.btn-row{display:flex;gap:9px;margin-top:13px;align-items:center;flex-wrap:wrap}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:20px}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:19px}
+.chart-card h3{font-size:10px;margin-bottom:13px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.8px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:17px}
+.alert{padding:11px 14px;border-radius:10px;margin-bottom:13px;font-size:13px;line-height:1.55}
+.alert-rose{background:var(--rose-dim);border:1px solid var(--rose-border);color:var(--rose)}
+.alert-lav{background:var(--lav-dim);border:1px solid var(--lav-border);color:var(--lav)}
+.alert-mint{background:var(--mint-dim);border:1px solid var(--mint-border);color:var(--mint)}
+.alert-peach{background:var(--peach-dim);border:1px solid var(--peach-border);color:var(--peach)}
+.tip{background:rgba(96,165,250,0.07);border-left:3px solid var(--lav);border-radius:0 10px 10px 0;padding:11px 15px;font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6}
+.sep{border-top:1px solid var(--border);margin:20px 0}
+.num-green{color:var(--mint);font-weight:700}
+.num-red{color:var(--red);font-weight:700}
+.num-lav{color:var(--lav);font-weight:700}
+.num-peach{color:var(--peach);font-weight:700}
+/* CHAT */
+.chat-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:18px}
+.chat-messages{height:320px;overflow-y:auto;padding:15px;display:flex;flex-direction:column;gap:10px}
+.chat-msg{max-width:84%;padding:10px 13px;border-radius:13px;font-size:13px;line-height:1.5;animation:fade-in .15s ease}
+.chat-msg.user{align-self:flex-end;background:var(--lav-dim);border:1px solid var(--lav-border);color:var(--text);border-radius:13px 13px 4px 13px}
+.chat-msg.bot{align-self:flex-start;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:13px 13px 13px 4px}
+.chat-msg.bot .msg-title{color:var(--rose);font-weight:700;font-size:11px;margin-bottom:4px}
+.chat-input-row{display:flex;gap:8px;padding:11px 13px;background:var(--surface2);border-top:1px solid var(--border)}
+.chat-input-row input{flex:1;background:var(--surface3);border:1px solid var(--border);border-radius:8px;padding:8px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none}
+.chat-input-row input:focus{border-color:var(--teal)}
+.chat-examples{display:flex;gap:6px;flex-wrap:wrap;padding:9px 13px;border-top:1px solid var(--border)}
+.example-pill{background:var(--surface3);border:1px solid var(--border);border-radius:20px;padding:4px 11px;font-size:11px;color:var(--muted);cursor:pointer;transition:all .12s}
+.example-pill:hover{border-color:var(--teal);color:var(--teal)}
+/* TIMELINE */
+.timeline{display:flex;flex-direction:column;gap:13px}
+.timeline-item{display:flex;gap:13px;align-items:flex-start}
+.timeline-dot{width:33px;height:33px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-top:2px}
+.timeline-dot.done{background:var(--mint-dim);color:var(--mint)}
+.timeline-dot.active{background:var(--rose-dim);color:var(--rose)}
+.timeline-dot.future{background:var(--surface2);color:var(--muted)}
+.timeline-content{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:13px 15px}
+.timeline-month{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.8px}
+.timeline-title{font-size:15px;font-weight:700;margin:3px 0 6px;color:var(--text)}
+.timeline-body{color:var(--text2);font-size:13px;line-height:1.65}
+.goal-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:17px 19px;margin-bottom:13px}
+.goal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.goal-name{font-size:15px;font-weight:700}
+.goal-pct{font-size:14px;color:var(--rose);font-weight:800;font-family:'Fraunces',serif}
+.whatsapp-note{background:linear-gradient(135deg,rgba(134,239,172,0.07),rgba(134,239,172,0.02));border:1px solid var(--mint-border);border-radius:var(--radius);padding:17px;margin-bottom:17px}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="app">
+<nav class="sidebar">
+  <div class="logo">Noriana 🌊<span>Tracker Financiero 2026</span></div>
+  <button class="nav-item active" onclick="go('dashboard')"><span class="icon">🏠</span><span>Dashboard</span></button>
+  <button class="nav-item" onclick="go('chat')"><span class="icon">💬</span><span>Registrar Montos</span></button>
+  <button class="nav-item" onclick="go('plan')"><span class="icon">🗓️</span><span>Plan de Pagos</span></button>
+  <button class="nav-item" onclick="go('transactions')"><span class="icon">💸</span><span>Transacciones</span></button>
+  <div class="nav-section">Módulos</div>
+  <div id="sidebar-modules"></div>
+  <div class="nav-section">Análisis</div>
+  <button class="nav-item" onclick="go('analytics')"><span class="icon">📊</span><span>Análisis</span></button>
+  <button class="nav-item" onclick="go('settings')"><span class="icon">⚙️</span><span>Configurar</span></button>
+  <button id="install-btn" onclick="installApp()" style="display:none;margin:8px 12px 4px;background:linear-gradient(135deg,#60d4b5,#60a5fa);border:none;border-radius:10px;padding:10px 14px;color:#0d1117;font-weight:700;font-size:12px;cursor:pointer;align-items:center;gap:8px;">
+    <span>📲</span><span>Instalar App</span>
+  </button>
+</nav>
+<div class="main">
+
+<!-- DASHBOARD -->
+<div id="page-dashboard" class="page active">
+  <h1 class="page-title">Hola, Noriana ✨</h1>
+  <p class="page-subtitle" id="dash-date">Cargando...</p>
+  <div class="oxford-banner">
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--lav);font-weight:700;margin-bottom:4px;">Tu meta principal</div>
+    <div style="font-family:'Fraunces',serif;font-size:21px;font-weight:500;margin-bottom:3px;">Oxford University — Octubre 2026 🎓</div>
+    <div id="oxford-days" style="color:var(--muted);font-size:13px;margin-bottom:13px;"></div>
+    <div style="display:flex;gap:26px;flex-wrap:wrap;">
+      <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600;">Ahorrado hoy</div><div id="ox-saved" style="font-size:19px;font-weight:700;color:var(--lav);font-family:'Fraunces',serif;"></div></div>
+      <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600;">Meta mínima</div><div style="font-size:19px;font-weight:700;color:var(--muted);font-family:'Fraunces',serif;">$20,000</div></div>
+      <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600;">Proyección Sep + Liq.</div><div id="ox-proj" style="font-size:19px;font-weight:700;color:var(--rose);font-family:'Fraunces',serif;"></div></div>
+      <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600;">Liquidación (Jun)</div><div style="font-size:19px;font-weight:700;color:var(--mint);font-family:'Fraunces',serif;">+$11,475</div></div>
+    </div>
+    <div class="progress-wrap" style="margin-top:13px;height:9px;"><div class="progress-fill" id="ox-bar" style="background:linear-gradient(90deg,var(--lav),var(--rose));"></div></div>
+  </div>
+  <div class="cards-grid">
+    <div class="card card-lav"><div class="card-label">BBVA Peru — USD</div><div class="card-value" style="color:var(--lav);" id="d-bbva-usd">$4,300</div><div class="card-sub">Cuenta en dólares</div></div>
+    <div class="card card-mint"><div class="card-label">BBVA Peru — PEN</div><div class="card-value" style="color:var(--mint);" id="d-bbva-pen">S/290</div><div class="card-sub" id="d-bbva-pen-usd">≈ $88 USD</div></div>
+    <div class="card card-sky"><div class="card-label">UNFCU — USD</div><div class="card-value" style="color:var(--sky);" id="d-unfcu">$800</div><div class="card-sub">Para obligaciones COP/USD</div></div>
+    <div class="card card-peach" id="card-bancolombia" style="display:none;"><div class="card-label">Bancolombia — COP</div><div class="card-value" style="color:var(--peach);" id="d-bancolombia">0 COP</div><div class="card-sub" id="d-bancolombia-usd">≈ $0 USD</div></div>
+    <div class="card card-red"><div class="card-label">TC UNFCU — Saldo</div><div class="card-value" style="color:var(--red);" id="d-tc">$1,540</div><div class="card-sub">16.49% anual</div></div>
+    <div class="card card-peach"><div class="card-label">Hipoteca BBVA CO</div><div class="card-value" style="color:var(--peach);">$108.88M</div><div class="card-sub">1er pago 19 mar · 2,388,393 COP</div></div>
+    <div class="card card-rose"><div class="card-label">Disponible Mar (est.)</div><div class="card-value" style="color:var(--rose);" id="d-avail">~$399</div><div class="card-sub">Ingreso - obligaciones</div></div>
+  </div>
+  <div class="two-col">
+    <div>
+      <div class="section-title">💳 Saldos actuales</div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Cuenta</th><th>Saldo Real</th><th>≈ USD</th></tr></thead>
+        <tbody id="dash-balances-table"></tbody>
+      </table></div>
+    </div>
+    <div>
+      <div class="section-title">⚡ Pendientes de Marzo</div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Obligación</th><th>Monto</th><th>Cuenta</th></tr></thead>
+        <tbody>
+          <tr><td>Celular ✅ 26-feb</td><td style="color:var(--mint);">S/75 ✅</td><td><span class="badge badge-mint">BBVA</span></td></tr>
+          <tr><td>Renta</td><td class="num-red">$445</td><td><span class="badge badge-mint">BBVA</span></td></tr>
+          <tr><td>🆕 Hipoteca (19 mar)</td><td class="num-red">2,388,393 COP<br><small style="color:var(--muted)">≈$637</small></td><td><span class="badge badge-sky">UNFCU</span></td></tr>
+          <tr><td>TC UNFCU</td><td class="num-red">$450 (parcial)</td><td><span class="badge badge-sky">UNFCU</span></td></tr>
+          <tr><td>Seguridad Social</td><td class="num-red">390K COP (~$104)</td><td><span class="badge badge-sky">UNFCU</span></td></tr>
+          <tr><td>Apoyo Familiar</td><td class="num-red">400K COP (~$107)</td><td><span class="badge badge-sky">UNFCU</span></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+  <div class="chart-grid">
+    <div class="chart-card"><h3>Distribución Gastos Mar</h3><canvas id="chart-pie" height="180"></canvas></div>
+    <div class="chart-card"><h3>Proyección Oxford Fund</h3><canvas id="chart-savings" height="180"></canvas></div>
+  </div>
+</div>
+
+<!-- CHAT -->
+<div id="page-chat" class="page">
+  <h1 class="page-title">Registrar Montos 💬</h1>
+  <p class="page-subtitle">Escríbeme en lenguaje natural — gastos, ingresos, pagos, lo que sea</p>
+  <div class="whatsapp-note">
+    <div style="font-weight:700;color:var(--mint);margin-bottom:8px;">📱 ¿Cómo funciona el registro?</div>
+    <div style="color:var(--text2);line-height:1.72;font-size:13px;">
+      <strong style="color:var(--text);">Opción 1 — Este chat (lo más fácil):</strong> Escribe cualquier movimiento en lenguaje natural. El tracker lo interpreta, lo clasifica y actualiza tus saldos automáticamente. Ej: <em>"gasté 120 soles en el super"</em> o <em>"recibí $2,680 de salario"</em>.<br><br>
+      <strong style="color:var(--text);">Opción 2 — Registro manual:</strong> Usa el formulario en la pestaña <strong>Transacciones</strong> para mayor control — puedes elegir cuenta, categoría, fecha y estado exactos.<br><br>
+      <strong style="color:var(--text);">💾 Respaldo:</strong> Tus datos viven en este navegador. Ve a <strong>Configuración → Exportar JSON</strong> regularmente para guardar una copia. Si cambias de dispositivo, importa el JSON para restaurar todo.
+    </div>
+  </div>
+  <div class="chat-wrap">
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-msg bot"><div class="msg-title">🌸 Mi Dinero · Asistente</div>¡Hola! Cuéntame qué pasó con tu dinero — <strong>gastos o ingresos</strong>:<br><br>
+        <strong style="color:var(--mint);">💚 Ingresos — di que "recibiste" o "te pagaron":</strong><br>
+        • <em>"Recibí $3,000 dólares de viáticos en BBVA Perú"</em><br>
+        • <em>"Me depositaron $2,680 de salario"</em><br>
+        • <em>"Me reembolsaron $450 en UNFCU"</em><br>
+        • <em>"Vendí algo, me llegaron 500 soles"</em><br><br>
+        <strong style="color:var(--rose);">🛍️ Gastos — di que "gastaste" o el nombre del gasto:</strong><br>
+        • <em>"Gasté 120 soles en el supermercado"</em><br>
+        • <em>"Fui a un restaurante, S/85"</em><br>
+        • <em>"Uber a Miraflores, 42 soles"</em>
+      </div>
+    </div>
+    <div class="chat-examples">
+      <span style="font-size:10px;color:var(--muted);font-weight:600;align-self:center;">Ingresos:</span>
+      <span class="example-pill" onclick="fillChat('Recibí $3,000 dólares de viáticos de viaje en BBVA Perú')">💚 Viáticos $3,000</span>
+      <span class="example-pill" onclick="fillChat('Me pagaron el salario, $2,680 dólares')">💚 Salario $2,680</span>
+      <span class="example-pill" onclick="fillChat('Me reembolsaron $450 en UNFCU')">💚 Reembolso $450</span>
+      <span style="font-size:10px;color:var(--muted);font-weight:600;align-self:center;margin-left:4px;">Gastos:</span>
+      <span class="example-pill" onclick="fillChat('Gasté 120 soles en el supermercado')">🛒 Super S/120</span>
+      <span class="example-pill" onclick="fillChat('Restaurante, gasté 85 soles')">🍽️ Rest. S/85</span>
+      <span class="example-pill" onclick="fillChat('Tomé un Uber, costó 38 soles')">🚗 Uber S/38</span>
+      <span class="example-pill" onclick="fillChat('Compré cosas para mi gato, 95 soles')">🐱 Gato S/95</span>
+    </div>
+    <div class="chat-input-row">
+      <input type="text" id="chat-input" placeholder="Ej: gasté 230 soles en restaurantes esta semana..." onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="btn btn-rose" onclick="sendChat()">Enviar →</button>
+    </div>
+  </div>
+  <div class="section-title">📝 Gastos registrados vía chat</div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Descripción</th><th>Cat.</th><th>Monto</th><th>≈ USD</th><th>Cuenta</th><th></th></tr></thead>
+    <tbody id="chat-history"></tbody>
+  </table></div>
+</div>
+
+<!-- PLAN -->
+<div id="page-plan" class="page">
+  <h1 class="page-title">Plan de Pagos 🗓️</h1>
+  <p class="page-subtitle">Estrategia Avalancha mes a mes — de marzo a Oxford</p>
+  <div class="tip">💡 <strong>Avalancha:</strong> TC UNFCU al 16.49% primero. Una vez liquidada (mayo), los ~$550/mes que pagabas se convierten en ahorro Oxford + abono hipoteca.</div>
+
+  <!-- Live KPIs from real data -->
+  <div id="plan-kpis" class="cards-grid" style="margin-bottom:18px;"></div>
+
+  <!-- AI update button -->
+  <div style="display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap;">
+    <button class="btn btn-lav" onclick="analyzePlanWithAI()" id="plan-ai-btn">✨ Actualizar plan con IA</button>
+    <span style="color:var(--muted);font-size:12px;">La IA lee tus transacciones reales y recalcula el plan mes a mes</span>
+  </div>
+  <div id="plan-ai-output" style="margin-bottom:14px;"></div>
+
+  <div class="timeline" id="plan-timeline"></div>
+</div>
+
+<!-- TRANSACTIONS -->
+<div id="page-transactions" class="page">
+  <h1 class="page-title">Transacciones 💸</h1>
+  <p class="page-subtitle">Historial completo — Enero a Septiembre 2026</p>
+  <div class="form-card">
+    <h3>+ Agregar Transacción Manual</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>Tipo</label>
+        <select id="tx-type" onchange="updateCatForType()">
+          <option value="expense">💸 Gasto / Pago</option>
+          <option value="income">💚 Ingreso</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Categoría</label>
+        <select id="tx-cat"><option value="Ingreso">💵 Ingreso</option><option value="Gasto_Fijo" selected>🔒 Gasto Fijo</option><option value="Gasto_Variable">🌊 Gasto Variable</option><option value="Deuda">💳 Pago Deuda</option><option value="Ahorro">💰 Ahorro</option><option value="Hipoteca">🏠 Hipoteca</option><option value="Transferencia">🔄 Transferencia</option></select>
+      </div>
+      <div class="form-group"><label>Descripción</label>
+        <select id="tx-desc">
+          <optgroup label="💚 Ingresos">
+            <option>Salario</option><option>Viáticos / Reembolso Viaje</option><option>Reembolso</option><option>Liquidación Laboral</option><option>Bono / Incentivo</option><option>Ingresos Freelance</option><option>Ingreso Arriendo</option><option>Devolución / Reembolso</option><option>Regalo en dinero</option><option>Intereses / Rendimientos</option><option>Venta</option>
+          </optgroup>
+          <optgroup label="🔒 Gastos Fijos">
+            <option>Renta</option><option>Celular</option><option>Administración/Servicios</option><option>Apoyo Familiar</option><option>Seguridad Social</option><option>Suscripciones PEN</option><option>Suscripciones USD</option><option>Suscripciones COP</option><option>Mascota</option><option>Médicos/Dermatología</option>
+          </optgroup>
+          <optgroup label="🌊 Gastos Variables">
+            <option>Supermercado</option><option>Restaurantes/Comida Fuera</option><option>Transporte/Uber</option><option>Gastos Hormiga</option><option>Ropa / Shopping</option><option>Entretenimiento / Ocio</option><option>Viajes</option>
+          </optgroup>
+          <optgroup label="💳 Deudas / Hipoteca">
+            <option>TC UNFCU — Pago</option><option>Hipoteca BBVA CO</option><option>Ahorro Oxford</option>
+          </optgroup>
+          <optgroup label="🗂️ Otros">
+            <option>Otros</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="form-group"><label>Monto</label><input type="number" id="tx-amount" placeholder="0"></div>
+      <div class="form-group"><label>Moneda</label><select id="tx-currency"><option value="USD">🇺🇸 USD</option><option value="PEN">🇵🇪 PEN</option><option value="COP">🇨🇴 COP</option></select></div>
+      <div class="form-group"><label>Fecha</label><input type="date" id="tx-date"></div>
+      <div class="form-group"><label>Cuenta</label>
+        <select id="tx-account">
+          <option>BBVA Peru</option><option>UNFCU</option><option>Bancolombia</option><option>Efectivo</option><option>Ambas</option><option>Otra</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Estado</label><select id="tx-status"><option value="Gastado">✅ Hecho</option><option value="Por Gastar">⏳ Planificado</option></select></div>
+      <div class="form-group"><label>Notas</label><input type="text" id="tx-notes" placeholder="Opcional"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-rose" onclick="addTx()">Agregar</button>
+      <select id="tx-filter" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 11px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;" onchange="renderTxs()">
+        <option value="all">Todos los meses</option><option value="Enero">Enero</option><option value="Febrero">Febrero</option><option value="Marzo" selected>Marzo</option><option value="Abril">Abril</option><option value="Mayo">Mayo</option><option value="Junio">Junio</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- RESUMEN POR CATEGORÍA -->
+  <div class="section-title">📊 Resumen por Categoría</div>
+  <div id="tx-summary" style="margin-bottom:20px;"></div>
+
+  <!-- DETALLE INDIVIDUAL -->
+  <div class="section-title">📋 Detalle — cada transacción</div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Mes</th><th>Fecha</th><th>Descripción</th><th>Cat.</th><th>Monto</th><th>≈ USD</th><th>Cuenta</th><th>Estado</th><th>Nota</th><th></th></tr></thead>
+    <tbody id="tx-tbody"></tbody>
+  </table></div>
+</div>
+
+<!-- SAVINGS -->
+<div id="page-savings" class="page">
+  <h1 class="page-title">Oxford Fund 💰</h1>
+  <p class="page-subtitle">Cada sol ahorrado hoy es un día menos de preocupación en Oxford</p>
+  <div class="form-card">
+    <h3>+ Nueva Meta de Ahorro</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>Nombre</label><input type="text" id="g-name" placeholder="Oxford Fund"></div>
+      <div class="form-group"><label>Meta (USD)</label><input type="number" id="g-target" placeholder="20000"></div>
+      <div class="form-group"><label>Ahorro actual (USD)</label><input type="number" id="g-current" placeholder="4300"></div>
+      <div class="form-group"><label>Tasa anual (%)</label><input type="number" id="g-rate" placeholder="3.5" step="0.1"></div>
+      <div class="form-group"><label>Ahorro mensual (USD)</label><input type="number" id="g-monthly" placeholder="400"></div>
+      <div class="form-group"><label>Emoji</label><input type="text" id="g-emoji" placeholder="🎓" maxlength="2"></div>
+    </div>
+    <div class="btn-row"><button class="btn btn-rose" onclick="addGoal()">Crear Meta</button></div>
+  </div>
+  <div id="goals-container"></div>
+</div>
+
+<!-- DEBTS -->
+<div id="page-debts" class="page">
+  <h1 class="page-title">TC UNFCU 💳</h1>
+  <p class="page-subtitle">Saldo: $1,540 · Tasa: 16.49% · Cuota de marzo ya pagada ✅</p>
+  <div class="alert alert-lav">✅ Ya pagaste la cuota de marzo. El saldo restante es <strong>$1,540 USD</strong>. Con $550/mes la liquidas en <strong>3 meses</strong> (mayo 2026). ¡Estás en el tramo final!</div>
+  <div class="cards-grid">
+    <div class="card card-red"><div class="card-label">Saldo TC</div><div class="card-value" style="color:var(--red);" id="tc-val">$1,540</div><div class="card-sub">16.49% EA · 1.374% mensual</div></div>
+    <div class="card card-peach"><div class="card-label">Interés total restante</div><div class="card-value" style="color:var(--peach);" id="tc-int">~$32</div><div class="card-sub">Si pagas $550/mes</div></div>
+    <div class="card card-mint"><div class="card-label">Meses para liquidar</div><div class="card-value" style="color:var(--mint);" id="tc-mo">3</div><div class="card-sub" id="tc-mo-note">Con $550/mes</div></div>
+  </div>
+  <div class="form-card">
+    <h3>Simulador</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>Pago mensual $</label><input type="number" id="tc-pay" value="550" oninput="renderDebts()"></div>
+      <div class="form-group"><label>Saldo actual $</label><input type="number" id="tc-bal" value="1540" oninput="renderDebts()"></div>
+    </div>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Mes</th><th>Saldo Inicial</th><th>Interés</th><th>Pago</th><th>Saldo Final</th><th>Estado</th></tr></thead>
+    <tbody id="tc-tbody"></tbody>
+  </table></div>
+</div>
+
+<!-- MORTGAGE -->
+<div id="page-mortgage" class="page">
+  <h1 class="page-title">Hipoteca BBVA Colombia 🏠</h1>
+  <p class="page-subtitle">Leasing Habitacional VIS Subrogación · Primer pago: 19 Marzo 2026</p>
+  <div class="alert alert-peach">📄 <strong>Datos BBVA oficiales:</strong> Préstamo $108,883,800 COP · Tasa 11.999% EA · Cuota SIN seguros: <strong>2,388,393 COP</strong> · CON seguros (vida + incendio): <strong>2,445,718 COP</strong> · 60 meses · Opción compra 1%</div>
+  <div class="cards-grid">
+    <div class="card card-peach"><div class="card-label">Préstamo</div><div class="card-value" style="color:var(--peach);">$108.88M</div><div class="card-sub">≈ $29,035 USD</div></div>
+    <div class="card card-rose"><div class="card-label">Cuota (sin seguros)</div><div class="card-value" style="color:var(--rose);">2,388,393</div><div class="card-sub">≈ $637 USD · COP</div></div>
+    <div class="card card-lav"><div class="card-label">Cuota (con seguros)</div><div class="card-value" style="color:var(--lav);">2,445,718</div><div class="card-sub">+Seg.Vida+Incendio · COP</div></div>
+    <div class="card card-sky"><div class="card-label">Tasa EA</div><div class="card-value" style="color:var(--sky);">11.999%</div><div class="card-sub">Mensual: ~0.9489%</div></div>
+    <div class="card card-mint"><div class="card-label">Plazo</div><div class="card-value" style="color:var(--mint);">60 meses</div><div class="card-sub">5 años · vence ~Feb 2031</div></div>
+    <div class="card"><div class="card-label">Seguros incluidos</div><div class="card-value" style="color:var(--text2);">$57,325</div><div class="card-sub">Vida $21,287 + Incendio $36,038 COP</div></div>
+  </div>
+  <div class="tip">💡 <strong>Abono a capital:</strong> Tu liquidación de junio (~$11,475 = ≈43M COP) puede reducir el plazo a ~47 meses y ahorrarte ~$7-8M COP en intereses. Cada abono adelantado tiene efecto exponencial al inicio del crédito.</div>
+  <div class="two-col">
+    <div>
+      <div class="section-title">Calculadora de Abono</div>
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="form-group"><label>Deuda (COP)</label><input type="number" id="m-debt" value="108883800"></div>
+          <div class="form-group"><label>Tasa Anual %</label><input type="number" id="m-rate" value="11.999" step="0.001"></div>
+          <div class="form-group"><label>Plazo (meses)</label><input type="number" id="m-term" value="60"></div>
+          <div class="form-group"><label>Abono Extra/mes COP</label><input type="number" id="m-extra" value="0"></div>
+        </div>
+        <div class="btn-row"><button class="btn btn-rose" onclick="calcMort()">Calcular</button></div>
+      </div>
+      <div id="mort-result"></div>
+    </div>
+    <div><div class="chart-card" style="margin-top:0;"><h3>Evolución del Saldo</h3><canvas id="chart-mort" height="240"></canvas></div></div>
+  </div>
+  <div class="sep"></div>
+  <div class="section-title">📋 Plan de Pagos BBVA — primeras 12 cuotas</div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>#</th><th>Saldo Inicial</th><th>Capital</th><th>Interés</th><th>Cuota</th><th>Saldo Final</th></tr></thead>
+    <tbody id="mort-official"></tbody>
+  </table></div>
+</div>
+
+<!-- BUDGET -->
+<div id="page-budget" class="page">
+  <h1 class="page-title">Presupuesto 📋</h1>
+  <p class="page-subtitle">Real vs. planificado — actualizado con tus transacciones</p>
+
+  <!-- Month selector + new budget -->
+  <div class="form-card" style="margin-bottom:18px;">
+    <div style="display:flex;gap:11px;align-items:center;flex-wrap:wrap;">
+      <div class="form-group" style="flex:1;min-width:140px;">
+        <label>Mes</label>
+        <select id="budget-month-sel" onchange="renderBudget()">
+          <option>Enero</option><option>Febrero</option><option selected>Marzo</option>
+          <option>Abril</option><option>Mayo</option><option>Junio</option>
+          <option>Julio</option><option>Agosto</option><option>Septiembre</option>
+        </select>
+      </div>
+      <div class="form-group" style="flex:1;min-width:140px;">
+        <label>Ingreso esperado ($)</label>
+        <input type="number" id="budget-income" placeholder="2680" oninput="updateBudgetIncome()">
+      </div>
+      <div style="padding-top:18px;">
+        <button class="btn btn-ghost" onclick="cloneBudgetFromPrev()">📋 Copiar mes anterior</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live summary cards -->
+  <div id="budget-summary-cards" class="cards-grid" style="margin-bottom:18px;"></div>
+
+  <!-- Real vs planned table -->
+  <div class="two-col">
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div class="section-title" style="margin-bottom:0;">📊 Real vs Presupuestado</div>
+        <button class="btn btn-ghost btn-sm" onclick="openAddBudgetItem()">+ Agregar línea</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Categoría</th><th>Meta $</th><th>Real $</th><th>Δ</th><th>%</th><th></th></tr></thead>
+          <tbody id="budget-table"></tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <div class="section-title">Balance del mes</div>
+      <div id="budget-balance-panel"></div>
+      <div class="sep"></div>
+      <div class="section-title">🤖 Análisis IA</div>
+      <div class="tip" style="margin-bottom:10px;">Claude analiza tus datos reales de este mes y genera recomendaciones personalizadas.</div>
+      <button class="btn btn-lav" onclick="analyzeWithAI()" id="ai-btn" style="width:100%;justify-content:center;">✨ Analizar con IA este mes</button>
+      <div id="ai-analysis" style="margin-top:13px;"></div>
+    </div>
+  </div>
+
+  <!-- Add item modal (inline) -->
+  <div id="budget-add-item" style="display:none;" class="form-card" style="margin-top:14px;">
+    <h3>+ Nueva línea de presupuesto</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>Descripción</label><input type="text" id="bi-desc" placeholder="Ej: Supermercado"></div>
+      <div class="form-group"><label>Categoría</label>
+        <select id="bi-cat">
+          <option value="Gasto_Fijo">🔒 Gasto Fijo</option>
+          <option value="Gasto_Variable">🌊 Variable</option>
+          <option value="Deuda">💳 Deuda</option>
+          <option value="Hipoteca">🏠 Hipoteca</option>
+          <option value="Ahorro">💰 Ahorro</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Meta (USD)</label><input type="number" id="bi-target" placeholder="100"></div>
+      <div class="form-group"><label>Prioridad</label>
+        <select id="bi-priority">
+          <option value="obligatorio">🔴 Obligatorio</option>
+          <option value="alta">🟠 Alta prioridad</option>
+          <option value="necesario">🟡 Necesario</option>
+          <option value="ajustable">🔵 Ajustable</option>
+          <option value="reducir">⚡ Reducir</option>
+          <option value="minimo">⬇️ Mínimo</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-rose" onclick="addBudgetItem()">Guardar</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('budget-add-item').style.display='none'">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ANALYTICS -->
+<div id="page-analytics" class="page">
+  <h1 class="page-title">Análisis 📊</h1>
+  <p class="page-subtitle">Proyecciones e insights financieros</p>
+  <div class="cards-grid">
+    <div class="card card-mint"><div class="card-label">Liquidación Laboral (Jun)</div><div class="card-value" style="color:var(--mint);">$11,475</div><div class="card-sub">51 meses × $225 = oportunidad enorme</div></div>
+    <div class="card card-lav"><div class="card-label">Oxford Fund — Proy. Sep</div><div class="card-value" style="color:var(--lav);" id="an-proj">$0</div><div class="card-sub">Ahorro mensual + 50% liquidación</div></div>
+    <div class="card card-rose"><div class="card-label">Interés TC ahorrado</div><div class="card-value" style="color:var(--rose);">~$58</div><div class="card-sub">vs pagar mínimo solamente</div></div>
+    <div class="card card-peach"><div class="card-label">Ahorros hipoteca (abono)</div><div class="card-value" style="color:var(--peach);">~$3.5M COP</div><div class="card-sub">Abonando 50% de la liquidación</div></div>
+  </div>
+  <div class="chart-grid">
+    <div class="chart-card"><h3>Oxford Fund — proyección mes a mes</h3><canvas id="chart-an1" height="200"></canvas></div>
+    <div class="chart-card"><h3>Gastos por Categoría (mar)</h3><canvas id="chart-an2" height="200"></canvas></div>
+  </div>
+  <div class="section-title">💡 Recomendaciones clave</div>
+  <div class="alert alert-mint">🏠 <strong>Arrienda tu apto cuando vayas a Oxford:</strong> ~1.5M COP/mes en Bogotá cubre casi toda la cuota hipotecaria. Tu hipoteca se "paga sola" mientras estudias.</div>
+  <div class="alert alert-lav">💳 <strong>TC liquidada en mayo</strong> → $550/mes extra desde junio: en 3 meses = +$1,650 adicionales para Oxford antes de octubre.</div>
+  <div class="alert alert-peach">💡 <strong>Liquidación de junio ($11,475):</strong> 50% abono hipoteca (~43M COP) + 50% Oxford. Esto puede ahorrarte 8+ cuotas de intereses.</div>
+  <div class="alert alert-rose">📱 <strong>Suscripciones:</strong> Netflix + Disney+ + HBO Max + YouTube + Atresmedia = ~$65/mes. Elige 2 máximo. Ahorro: $130+ antes de irte.</div>
+</div>
+
+<!-- SETTINGS -->
+<div id="page-settings" class="page">
+  <h1 class="page-title">Configuración ⚙️</h1>
+  <p class="page-subtitle">Tipos de cambio, módulos y gestión de datos</p>
+  <div class="two-col">
+    <div class="form-card">
+      <h3>💱 Tipos de Cambio</h3>
+      <div class="form-grid">
+        <div class="form-group"><label>1 USD = ? PEN</label><input type="number" id="r-pen" value="3.30" step="0.01"></div>
+        <div class="form-group"><label>1 USD = ? COP</label><input type="number" id="r-cop" value="3750" step="10"></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-lav" onclick="saveRates()">Guardar</button></div>
+    </div>
+    <div class="form-card">
+      <h3>💾 Datos</h3>
+      <div class="btn-row" style="flex-wrap:wrap;">
+        <button class="btn btn-ghost" onclick="exportJSON()">📥 Exportar JSON</button>
+        <button class="btn btn-ghost" onclick="exportCSV()">📊 Exportar CSV</button>
+        <label class="btn btn-ghost" style="cursor:pointer;">📤 Importar JSON<input type="file" accept=".json" onchange="importJSON(event)" style="display:none;"></label>
+        <button class="btn btn-danger btn-sm" onclick="if(confirm('¿Borrar todo?'))resetData()">🗑️ Reset</button>
+      </div>
+      <div class="tip" style="margin-top:13px;margin-bottom:0;">💾 Exporta tu JSON regularmente como respaldo. Los datos viven en tu navegador.</div>
+    </div>
+  </div>
+
+  <!-- SALDOS DE CUENTAS -->
+  <div class="section-title" style="margin-top:6px;">💳 Actualizar Saldos de Cuentas</div>
+  <div class="tip">Actualiza estos valores cuando recibas tu sueldo, hagas un pago grande, o quieras que el dashboard refleje tu situación real.</div>
+  <div class="form-card">
+    <h3>Saldos actuales</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>BBVA Peru — USD ($)</label><input type="number" id="s-bbva-usd" placeholder="4300" step="10"></div>
+      <div class="form-group"><label>BBVA Peru — PEN (S/)</label><input type="number" id="s-bbva-pen" placeholder="290" step="10"></div>
+      <div class="form-group"><label>UNFCU — USD ($)</label><input type="number" id="s-unfcu" placeholder="800" step="10"></div>
+      <div class="form-group"><label>Bancolombia — COP</label><input type="number" id="s-bancolombia" placeholder="0" step="1000"></div>
+      <div class="form-group"><label>TC UNFCU — Saldo deuda ($)</label><input type="number" id="s-tc" placeholder="1540" step="10"></div>
+    </div>
+    <div class="btn-row"><button class="btn btn-rose" onclick="saveBalances()">💾 Guardar Saldos</button></div>
+  </div>
+
+  <!-- MÓDULOS DINÁMICOS -->
+  <div class="section-title" style="margin-top:6px;">🧩 Módulos del Sidebar</div>
+  <div class="tip">Activa o desactiva módulos según tu situación actual. Si liquidas la TC, desactívala. Si abres una nueva cuenta o empiezas otro mes, agrégala.</div>
+  <div class="form-card">
+    <h3>Módulos activos</h3>
+    <div id="modules-list" style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;"></div>
+    <div class="sep" style="margin:10px 0;"></div>
+    <h3 style="margin-bottom:10px;">+ Agregar módulo personalizado</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>Nombre</label><input type="text" id="mod-name" placeholder="Ej: TC Visa Bancolombia"></div>
+      <div class="form-group"><label>Tipo</label>
+        <select id="mod-type">
+          <option value="savings">💰 Ahorro / Fondo</option>
+          <option value="debt">💳 Tarjeta / Deuda</option>
+          <option value="mortgage">🏠 Hipoteca / Crédito</option>
+          <option value="budget">📋 Presupuesto Mensual</option>
+          <option value="income">💵 Fuente de Ingreso</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Emoji</label><input type="text" id="mod-emoji" placeholder="💳" maxlength="2"></div>
+    </div>
+    <div class="btn-row"><button class="btn btn-rose" onclick="addModule()">Agregar Módulo</button></div>
+  </div>
+</div>
+
+</div></div><!-- /main /app -->
+
+<script>
+// STATE
+let S={
+  transactions:[],
+  goals:[
+    {id:1,name:"Oxford Fund 🎓",target:20000,current:4300,rate:3.5,monthly:400,emoji:"🎓"},
+    {id:2,name:"Fondo Emergencia 🛡️",target:3000,current:200,rate:2,monthly:50,emoji:"🛡️"}
+  ],
+  chatLog:[],
+  rates:{PEN:3.30,COP:3750},
+  balances:{bbvaUSD:4300,bbvaPEN:290,unfcu:800,bancolombia:0},
+  tcBalance:1540,
+  modules:[
+    {id:'savings',name:'Oxford Fund',emoji:'💰',active:true,builtin:true,type:'savings'},
+    {id:'debts',name:'TC UNFCU',emoji:'💳',active:true,builtin:true,type:'debt'},
+    {id:'mortgage',name:'Hipoteca BBVA',emoji:'🏠',active:true,builtin:true,type:'mortgage'},
+    {id:'budget',name:'Presupuestos',emoji:'📋',active:true,builtin:true,type:'budget'},
+  ],
+  budgets: null // initialized by buildDefaultBudgets() at load time
+};
+
+const PRELOAD=[
+  {id:1,month:'Enero',cat:'Ingreso',desc:'Salario',amount:2670,currency:'USD',account:'Ambas',status:'Gastado',notes:'',usd:2670},
+  {id:2,month:'Enero',cat:'Gasto_Fijo',desc:'Renta',amount:445,currency:'USD',account:'BBVA Peru',status:'Gastado',notes:'',usd:445},
+  {id:3,month:'Enero',cat:'Gasto_Fijo',desc:'Administración/Servicios',amount:260,currency:'PEN',account:'BBVA Peru',status:'Gastado',notes:'Dic',usd:79},
+  {id:4,month:'Enero',cat:'Gasto_Fijo',desc:'Supermercado',amount:500,currency:'PEN',account:'BBVA Peru',status:'Gastado',notes:'',usd:152},
+  {id:5,month:'Enero',cat:'Gasto_Fijo',desc:'Restaurantes/Comida Fuera',amount:350,currency:'PEN',account:'BBVA Peru',status:'Gastado',notes:'',usd:106},
+  {id:6,month:'Enero',cat:'Gasto_Fijo',desc:'Gastos Hormiga',amount:250,currency:'PEN',account:'BBVA Peru',status:'Gastado',notes:'',usd:76},
+  {id:7,month:'Enero',cat:'Gasto_Fijo',desc:'Transporte/Uber',amount:150,currency:'PEN',account:'BBVA Peru',status:'Gastado',notes:'',usd:45},
+  {id:8,month:'Enero',cat:'Gasto_Fijo',desc:'Mascota',amount:150,currency:'PEN',account:'BBVA Peru',status:'Gastado',notes:'',usd:45},
+  {id:9,month:'Enero',cat:'Gasto_Fijo',desc:'Médicos/Dermatología',amount:260,currency:'PEN',account:'BBVA Peru',status:'Gastado',notes:'',usd:79},
+  {id:10,month:'Enero',cat:'Gasto_Fijo',desc:'Celular',amount:75,currency:'PEN',account:'BBVA Peru',status:'Gastado',notes:'Dic',usd:23},
+  {id:11,month:'Enero',cat:'Gasto_Fijo',desc:'Apoyo Familiar',amount:400000,currency:'COP',account:'UNFCU',status:'Gastado',notes:'',usd:107},
+  {id:12,month:'Enero',cat:'Gasto_Fijo',desc:'Seguridad Social',amount:380000,currency:'COP',account:'UNFCU',status:'Gastado',notes:'',usd:101},
+  {id:13,month:'Enero',cat:'Gasto_Fijo',desc:'Suscripciones PEN',amount:114,currency:'PEN',account:'BBVA Peru',status:'Gastado',notes:'YouTube+HBO+iCloud',usd:35},
+  {id:14,month:'Enero',cat:'Gasto_Fijo',desc:'Suscripciones USD',amount:7,currency:'USD',account:'UNFCU',status:'Gastado',notes:'Atresmedia',usd:7},
+  {id:15,month:'Enero',cat:'Gasto_Fijo',desc:'Suscripciones COP',amount:107700,currency:'COP',account:'UNFCU',status:'Gastado',notes:'Netflix+Disney+',usd:29},
+  {id:16,month:'Febrero',cat:'Ingreso',desc:'Salario',amount:2670,currency:'USD',account:'Ambas',status:'Gastado',notes:'Recibido 23 ene',usd:2670},
+  {id:17,month:'Febrero',cat:'Gasto_Fijo',desc:'Restaurantes/Comida Fuera',amount:1084,currency:'PEN',account:'BBVA Peru',status:'Gastado',notes:'⚠️ 23-31 ene — muy alto',usd:328},
+  {id:18,month:'Febrero',cat:'Gasto_Fijo',desc:'Transporte/Uber',amount:241,currency:'PEN',account:'BBVA Peru',status:'Gastado',notes:'23-31 ene',usd:73},
+  {id:19,month:'Febrero',cat:'Gasto_Fijo',desc:'Otros',amount:703,currency:'PEN',account:'BBVA Peru',status:'Gastado',notes:'Concierto The Killers 🎵',usd:213},
+  {id:20,month:'Febrero',cat:'Deuda',desc:'TC UNFCU — Pago',amount:953,currency:'USD',account:'UNFCU',status:'Gastado',notes:'$850+$103',usd:953},
+  {id:21,month:'Febrero',cat:'Gasto_Fijo',desc:'Celular',amount:75,currency:'PEN',account:'BBVA Peru',status:'Gastado',notes:'Ene',usd:23},
+  {id:22,month:'Marzo',cat:'Ingreso',desc:'Salario',amount:2680,currency:'USD',account:'Ambas',status:'Gastado',notes:'⚠️ Borrar si aún no lo has recibido — ingresado manualmente',usd:2680},
+  {id:23,month:'Marzo',cat:'Gasto_Fijo',desc:'Celular',amount:75,currency:'PEN',account:'BBVA Peru',status:'Gastado',notes:'✅ Pagado 26 feb',usd:23},
+  {id:24,month:'Marzo',cat:'Gasto_Fijo',desc:'Renta',amount:445,currency:'USD',account:'BBVA Peru',status:'Por Gastar',notes:'',usd:445},
+  {id:25,month:'Marzo',cat:'Hipoteca',desc:'Hipoteca BBVA CO',amount:2388393,currency:'COP',account:'UNFCU',status:'Por Gastar',notes:'19 mar — 1er pago oficial',usd:637},
+  {id:26,month:'Marzo',cat:'Deuda',desc:'TC UNFCU — Pago',amount:550,currency:'USD',account:'UNFCU',status:'Por Gastar',notes:'',usd:550},
+  {id:27,month:'Marzo',cat:'Gasto_Fijo',desc:'Seguridad Social',amount:390000,currency:'COP',account:'UNFCU',status:'Por Gastar',notes:'Posiblemente último mes',usd:104},
+  {id:28,month:'Marzo',cat:'Gasto_Fijo',desc:'Apoyo Familiar',amount:400000,currency:'COP',account:'UNFCU',status:'Por Gastar',notes:'',usd:107},
+];
+
+const MORT_DATA=[
+  {n:1,si:108883800,cap:1355299,int:1033094,cuota:2388393,sf:107528501},
+  {n:2,si:107528501,cap:1368158,int:1020235,cuota:2388393,sf:106160344},
+  {n:3,si:106160344,cap:1381139,int:1007254,cuota:2388393,sf:104779205},
+  {n:4,si:104779205,cap:1394243,int:994149,cuota:2388393,sf:103384961},
+  {n:5,si:103384961,cap:1407472,int:980921,cuota:2388393,sf:101977489},
+  {n:6,si:101977489,cap:1420826,int:967567,cuota:2388393,sf:100556663},
+  {n:7,si:100556663,cap:1434307,int:954086,cuota:2388393,sf:99122356},
+  {n:8,si:99122356,cap:1447916,int:940477,cuota:2388393,sf:97674441},
+  {n:9,si:97674441,cap:1461654,int:926739,cuota:2388393,sf:96212787},
+  {n:10,si:96212787,cap:1475522,int:912871,cuota:2388393,sf:94737265},
+  {n:11,si:94737265,cap:1489522,int:898871,cuota:2388393,sf:93247744},
+  {n:12,si:93247744,cap:1503654,int:884738,cuota:2388393,sf:91744090},
+];
+
+function buildDefaultBudgets(){
+  return {
+    Marzo:{
+      month:'Marzo', income:2680,
+      items:[
+        {cat:'Gasto_Fijo',    desc:'Renta',                    target:445,  priority:'obligatorio'},
+        {cat:'Hipoteca',      desc:'Hipoteca BBVA CO',         target:637,  priority:'obligatorio'},
+        {cat:'Deuda',         desc:'TC UNFCU — Pago',          target:550,  priority:'alta'},
+        {cat:'Gasto_Fijo',    desc:'Seguridad Social',         target:104,  priority:'temporal'},
+        {cat:'Gasto_Fijo',    desc:'Apoyo Familiar',           target:107,  priority:'obligatorio'},
+        {cat:'Gasto_Fijo',    desc:'Administración/Servicios', target:79,   priority:'obligatorio'},
+        {cat:'Gasto_Fijo',    desc:'Supermercado',             target:121,  priority:'ajustable'},
+        {cat:'Gasto_Fijo',    desc:'Mascota',                  target:45,   priority:'necesario'},
+        {cat:'Gasto_Fijo',    desc:'Médicos/Dermatología',     target:45,   priority:'necesario'},
+        {cat:'Gasto_Fijo',    desc:'Celular',                  target:23,   priority:'obligatorio'},
+        {cat:'Gasto_Variable',desc:'Restaurantes/Comida Fuera',target:55,   priority:'reducir'},
+        {cat:'Gasto_Variable',desc:'Gastos Hormiga',           target:36,   priority:'reducir'},
+        {cat:'Gasto_Variable',desc:'Transporte/Uber',          target:24,   priority:'reducir'},
+        {cat:'Gasto_Fijo',    desc:'Suscripciones PEN',        target:35,   priority:'reducir'},
+        {cat:'Gasto_Fijo',    desc:'Suscripciones USD',        target:7,    priority:'reducir'},
+        {cat:'Gasto_Fijo',    desc:'Suscripciones COP',        target:23,   priority:'reducir'},
+        {cat:'Gasto_Variable',desc:'Otros',                    target:45,   priority:'minimo'},
+      ]
+    }
+  };
+}
+
+function load(){
+  try{
+    const s=localStorage.getItem('nori_v4');
+    if(s){
+      const p=JSON.parse(s);
+      S={...S,...p};
+      // Sanitize balances — always numbers
+      const b=S.balances;
+      S.balances={
+        bbvaUSD:parseFloat(b?.bbvaUSD)||4300,
+        bbvaPEN:parseFloat(b?.bbvaPEN)||290,
+        unfcu:parseFloat(b?.unfcu)||800,
+        bancolombia:parseFloat(b?.bancolombia)||0,
+      };
+      S.tcBalance=parseFloat(S.tcBalance)||1540;
+      if(!Array.isArray(S.transactions))S.transactions=[...PRELOAD];
+      if(!S.budgets||typeof S.budgets!=='object')S.budgets=buildDefaultBudgets();
+      if(!Array.isArray(S.modules))S.modules=[
+        {id:'savings',name:'Oxford Fund',emoji:'💰',active:true,builtin:true,type:'savings'},
+        {id:'debts',name:'TC UNFCU',emoji:'💳',active:true,builtin:true,type:'debt'},
+        {id:'mortgage',name:'Hipoteca BBVA',emoji:'🏠',active:true,builtin:true,type:'mortgage'},
+        {id:'budget',name:'Presupuestos',emoji:'📋',active:true,builtin:true,type:'budget'},
+      ];
+      // Migrate stale names from old versions
+      S.modules.forEach(m=>{
+        if(m.id==='budget'&&m.name==='Presupuesto Mar')m.name='Presupuestos';
+      });
+      save();
+    } else {
+      S.transactions=[...PRELOAD];
+      S.budgets=buildDefaultBudgets();
+    }
+  } catch {
+    S.transactions=[...PRELOAD];
+  }
+}
+function save(){localStorage.setItem('nori_v4',JSON.stringify(S));}
+
+// NAV
+const RENDERS={dashboard:renderDash,chat:renderChatHistory,plan:renderPlan,transactions:renderTxs,savings:renderGoals,debts:renderDebts,mortgage:renderMort,budget:renderBudget,analytics:renderAnalytics,settings:renderSettings};
+function go(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const b=document.querySelector(`[onclick="go('${id}')"]`);if(b)b.classList.add('active');
+  if(RENDERS[id])RENDERS[id]();
+}
+
+// MODULES
+function renderSidebarModules(){
+  const el=document.getElementById('sidebar-modules');
+  if(!el)return;
+  el.innerHTML=S.modules.filter(m=>m.active).map(m=>`<button class="nav-item" onclick="go('${m.id}')"><span class="icon">${m.emoji}</span><span>${m.name}</span></button>`).join('');
+}
+
+function renderSettings(){
+  document.getElementById('r-pen').value=S.rates.PEN;
+  document.getElementById('r-cop').value=S.rates.COP;
+  // Populate balance fields
+  document.getElementById('s-bbva-usd').value=parseFloat(S.balances.bbvaUSD)||0;
+  document.getElementById('s-bbva-pen').value=parseFloat(S.balances.bbvaPEN)||0;
+  document.getElementById('s-unfcu').value=parseFloat(S.balances.unfcu)||0;
+  document.getElementById('s-bancolombia').value=parseFloat(S.balances.bancolombia)||0;
+  document.getElementById('s-tc').value=parseFloat(S.tcBalance)||0;
+  const ml=document.getElementById('modules-list');
+  ml.innerHTML=S.modules.map(m=>{
+    const delBtn=`<button class="btn btn-danger btn-sm" onclick="removeModule('${m.id}')">${m.builtin?'🗑️':'🗑️ Eliminar'}</button>`;
+    return `<div style="display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:9px 13px;">
+      <span style="font-size:17px;">${m.emoji}</span>
+      <span style="flex:1;font-weight:500;font-size:13px;">${m.name}</span>
+      <span class="badge badge-muted" style="font-size:10px;">${m.type}</span>
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text2);">
+        <input type="checkbox" ${m.active?'checked':''} onchange="toggleModule('${m.id}',this.checked)" style="accent-color:var(--teal);">
+        ${m.active?'Activo':'Inactivo'}
+      </label>
+      ${delBtn}
+    </div>`;
+  }).join('');
+}
+
+function toggleModule(id,val){
+  const m=S.modules.find(m=>m.id===id);if(m){m.active=val;}
+  save();renderSidebarModules();renderSettings();
+}
+
+function addModule(){
+  const name=document.getElementById('mod-name').value.trim();
+  const type=document.getElementById('mod-type').value;
+  const emoji=document.getElementById('mod-emoji').value||'📦';
+  if(!name)return alert('Escribe un nombre para el módulo');
+
+  // Budget modules → link to budget page with month pre-selected
+  if(type==='budget'){
+    const months=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const monthMatch=months.find(m=>name.includes(m));
+    const id='custom_'+Date.now();
+    S.modules.push({id,name,emoji,active:true,builtin:false,type,targetMonth:monthMatch||null});
+    // Create a redirect page that selects the right month and goes to budget
+    const p=document.createElement('div');p.id='page-'+id;p.className='page';
+    p.innerHTML=`<div style="padding:40px;text-align:center;"><div style="font-size:40px;margin-bottom:12px;">${emoji}</div><p style="color:var(--muted);">Redirigiendo a Presupuesto ${monthMatch||''}...</p></div>`;
+    document.querySelector('.main').appendChild(p);
+    RENDERS[id]=()=>{
+      // Switch to budget page and select month
+      if(monthMatch){
+        const sel=document.getElementById('budget-month-sel');
+        if(sel){sel.value=monthMatch;}
+      }
+      go('budget');
+    };
+  } else {
+    const id='custom_'+Date.now();
+    S.modules.push({id,name,emoji,active:true,builtin:false,type});
+    const p=document.createElement('div');p.id='page-'+id;p.className='page';
+    p.innerHTML=`<h1 class="page-title">${emoji} ${name}</h1><p class="page-subtitle">Módulo personalizado — tipo: ${type}</p><div class="tip">Este módulo fue creado manualmente. Puedes registrar transacciones con este nombre y filtrarlas en la sección Transacciones.</div>`;
+    document.querySelector('.main').appendChild(p);
+    RENDERS[id]=()=>{};
+  }
+  save();renderSidebarModules();renderSettings();
+  document.getElementById('mod-name').value='';document.getElementById('mod-emoji').value='';
+}
+
+function removeModule(id){
+  const m=S.modules.find(m=>m.id===id);
+  if(!m)return;
+  const warn=m.builtin?' (módulo principal — puedes volver a activarlo si lo desactivas)':'';
+  if(!confirm(`¿Eliminar "${m.name}"?${warn}`))return;
+  S.modules=S.modules.filter(m=>m.id!==id);
+  save();renderSidebarModules();renderSettings();
+}
+
+// TX TYPE HELPER
+function updateCatForType(){
+  const t=document.getElementById('tx-type').value;
+  const cat=document.getElementById('tx-cat');
+  if(t==='income'){cat.value='Ingreso';}
+  else if(cat.value==='Ingreso'){cat.value='Gasto_Fijo';}
+}
+
+// HELPERS
+const fmt=v=>'$'+Number(v).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+const fmtCOP=v=>v.toLocaleString('es-CO',{maximumFractionDigits:0})+' COP';
+function toUSD(a,c){if(c==='USD')return a;if(c==='PEN')return a/S.rates.PEN;if(c==='COP')return a/S.rates.COP;return a;}
+function fmtAmt(a,c){if(c==='COP')return a.toLocaleString('es-CO')+' COP';if(c==='PEN')return 'S/'+a.toFixed(0);return '$'+a.toFixed(2)+' USD';}
+function catBadge(c){const m={Ingreso:'badge-mint',Gasto_Fijo:'badge-muted',Gasto_Variable:'badge-sky',Deuda:'badge-red',Ahorro:'badge-mint',Hipoteca:'badge-peach'};return`<span class="badge ${m[c]||'badge-muted'}">${c.replace('_',' ')}</span>`;}
+function sBadge(s){return s==='Gastado'?'<span class="badge badge-mint">✅</span>':'<span class="badge badge-peach">⏳</span>';}
+function monthOf(d){const mn=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];if(!d)return'Marzo';if(typeof d==='string'&&isNaN(Date.parse(d)))return d;const dt=new Date(d);if(isNaN(dt))return'Marzo';return mn[dt.getMonth()];}
+
+// DASHBOARD
+let dC1=null,dC2=null;
+function renderDash(){
+  const now=new Date();
+  document.getElementById('dash-date').textContent=now.toLocaleDateString('es-PE',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const ox=new Date('2026-10-01');
+  const days=Math.floor((ox-now)/86400000);
+  document.getElementById('oxford-days').textContent=`Faltan ${days} días · ${Math.ceil(days/30)} meses`;
+  const og=S.goals.find(g=>g.name.includes('Oxford'))||S.goals[0];
+  const proj=og.current+og.monthly*7+11475*0.5+550*2;
+  document.getElementById('ox-saved').textContent=fmt(og.current);
+  document.getElementById('ox-proj').textContent=fmt(proj);
+  document.getElementById('ox-bar').style.width=Math.min(proj/20000*100,100)+'%';
+
+  // Always parse as float to prevent [object Object] bug
+  const bbvaUSD=parseFloat(S.balances.bbvaUSD)||0;
+  const bbvaPEN=parseFloat(S.balances.bbvaPEN)||0;
+  const unfcu=parseFloat(S.balances.unfcu)||0;
+  const bancolombia=parseFloat(S.balances.bancolombia)||0;
+  const tc=parseFloat(S.tcBalance)||0;
+
+  document.getElementById('d-bbva-usd').textContent='$'+bbvaUSD.toLocaleString();
+  document.getElementById('d-bbva-pen').textContent='S/'+bbvaPEN.toLocaleString();
+  const penSubEl=document.getElementById('d-bbva-pen-usd');
+  if(penSubEl)penSubEl.textContent='≈ $'+Math.round(bbvaPEN/S.rates.PEN)+'  USD';
+  document.getElementById('d-unfcu').textContent='$'+unfcu.toLocaleString();
+  document.getElementById('d-tc').textContent='$'+tc.toLocaleString();
+
+  // Bancolombia card — show only if has balance
+  const bcoCard=document.getElementById('card-bancolombia');
+  if(bcoCard){
+    if(bancolombia>0){
+      bcoCard.style.display='';
+      document.getElementById('d-bancolombia').textContent=bancolombia.toLocaleString('es-CO')+' COP';
+      const bcoUsd=document.getElementById('d-bancolombia-usd');
+      if(bcoUsd)bcoUsd.textContent='≈ $'+Math.round(bancolombia/S.rates.COP).toLocaleString()+' USD';
+    } else {bcoCard.style.display='none';}
+  }
+
+  // Dynamic balances table
+  const totalUSD=bbvaUSD+(bbvaPEN/S.rates.PEN)+unfcu+(bancolombia/S.rates.COP);
+  const tb=document.getElementById('dash-balances-table');
+  if(tb){
+    let rows='';
+    rows+=`<tr><td>🇺🇸 UNFCU</td><td class="num-lav">$${unfcu.toLocaleString()} USD</td><td>$${unfcu.toLocaleString()}</td></tr>`;
+    rows+=`<tr><td>🇵🇪 BBVA USD</td><td class="num-lav">$${bbvaUSD.toLocaleString()} USD</td><td>$${bbvaUSD.toLocaleString()}</td></tr>`;
+    rows+=`<tr><td>🇵🇪 BBVA PEN</td><td class="num-mint">S/${bbvaPEN.toLocaleString()}</td><td>≈ $${Math.round(bbvaPEN/S.rates.PEN).toLocaleString()}</td></tr>`;
+    if(bancolombia>0) rows+=`<tr><td>🇨🇴 Bancolombia</td><td class="num-peach">${bancolombia.toLocaleString('es-CO')} COP</td><td>≈ $${Math.round(bancolombia/S.rates.COP).toLocaleString()}</td></tr>`;
+    rows+=`<tr style="background:var(--surface2);"><td><strong>Total líquido</strong></td><td></td><td class="num-lav"><strong>≈ $${Math.round(totalUSD).toLocaleString()}</strong></td></tr>`;
+    tb.innerHTML=rows;
+  }
+
+  if(dC1)dC1.destroy();if(dC2)dC2.destroy();
+  const pas=['#60d4b5','#60a5fa','#4ade80','#38bdf8','#818cf8','#f87171','#fbbf24','#a78bfa'];
+  dC1=new Chart(document.getElementById('chart-pie').getContext('2d'),{type:'doughnut',data:{labels:['Renta','Hipoteca','TC','Apoyo/SS','Comida','Otros Fijo','Suscr.','Más'],datasets:[{data:[445,637,550,211,176,79,65,218],backgroundColor:pas,borderWidth:0}]},options:{plugins:{legend:{position:'right',labels:{color:'#5a7a99',font:{size:10},boxWidth:10}}},cutout:'65%'}});
+  const months=['Mar','Abr','May','Jun','Jul','Ago','Sep'];
+  const pd=[];let bal=og.current;
+  for(let i=0;i<months.length;i++){pd.push(Math.round(bal));bal+=og.monthly;if(i===1)bal+=550;if(i===3)bal+=11475*0.5;}
+  dC2=new Chart(document.getElementById('chart-savings').getContext('2d'),{type:'line',data:{labels:months,datasets:[{label:'Oxford Fund',data:pd,borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,0.08)',borderWidth:2,fill:true,tension:0.4,pointBackgroundColor:'#60a5fa',pointRadius:4},{label:'Meta $20k',data:Array(7).fill(20000),borderColor:'#60d4b5',borderDash:[5,4],borderWidth:1.5,pointRadius:0}]},options:{plugins:{legend:{labels:{color:'#5a7a99',font:{size:10}}}},scales:{y:{grid:{color:'#243447'},ticks:{color:'#5a7a99',callback:v=>'$'+v.toLocaleString()}},x:{grid:{display:false},ticks:{color:'#5a7a99'}}}}});
+}
+
+// CHAT
+// ─── Patrones de INGRESO — se evalúan primero ───────────────────────────────
+const INCOME_PATTERNS=[
+  {re:/viático|viatico|viaje.*reembols|reembols.*viaje/i,desc:'Viáticos / Reembolso Viaje'},
+  {re:/reembols/i,desc:'Reembolso'},
+  {re:/salar|sueldo|nómin|nómina/i,desc:'Salario'},
+  {re:/liquidaci[oó]n/i,desc:'Liquidación Laboral'},
+  {re:/bono|bonus|incentivo/i,desc:'Bono / Incentivo'},
+  {re:/freelance|honorari|consult/i,desc:'Ingresos Freelance'},
+  {re:/arrend|alqui.*recib|renta.*recib/i,desc:'Ingreso Arriendo'},
+  {re:/devoluci[oó]n|devolví|me devolvieron/i,desc:'Devolución / Reembolso'},
+  {re:/vend[ií]|vendí|venta/i,desc:'Venta'},
+  {re:/premi|ganancia|ganancia/i,desc:'Premio / Ganancia'},
+  {re:/inter[eé]s|rendimiento/i,desc:'Intereses / Rendimientos'},
+  {re:/regalo|regalaron/i,desc:'Regalo en dinero'},
+];
+
+// Palabras que indican que ES un ingreso (verbo de recepción)
+const INCOME_VERBS=/recib[íi]|me\s+(pag[oó]|deposit|transfiri|mand|llegó|llegaron|cay[oó])|cobr[eé]|ingres[oó]|entró|me\s+dieron|ganaron|me\s+regalar|me\s+pag[oó]/i;
+
+// ─── Patrones de GASTO ───────────────────────────────────────────────────────
+const EXPENSE_PATTERNS=[
+  {re:/super\w*|mercado|compra.*casa|abarrotes|aseo/i,cat:'Gasto_Fijo',desc:'Supermercado',acc:'BBVA Peru'},
+  {re:/restaur|comid[ao]\s*fu|almuerzo|cena|pizza|sushi|fast food|menú|cevich/i,cat:'Gasto_Variable',desc:'Restaurantes/Comida Fuera',acc:'BBVA Peru'},
+  {re:/uber|taxi|bus|combi|transporte|metro/i,cat:'Gasto_Variable',desc:'Transporte/Uber',acc:'BBVA Peru'},
+  {re:/gato|perro|mascot|arena|veterinario/i,cat:'Gasto_Fijo',desc:'Mascota',acc:'BBVA Peru'},
+  {re:/café|caf|snack|hormiga|dulce|golosina|helado/i,cat:'Gasto_Variable',desc:'Gastos Hormiga',acc:'BBVA Peru'},
+  {re:/médico|doctor|medicina|derm|crema|farmacia/i,cat:'Gasto_Fijo',desc:'Médicos/Dermatología',acc:'BBVA Peru'},
+  {re:/tarjet|tc\b|crédito|unfcu/i,cat:'Deuda',desc:'TC UNFCU — Pago',acc:'UNFCU'},
+  {re:/hipoteca|apto|apartamento|bbva.*colombia/i,cat:'Hipoteca',desc:'Hipoteca BBVA CO',acc:'UNFCU'},
+  {re:/familia|mamá|papá|remesa|apoyo/i,cat:'Gasto_Fijo',desc:'Apoyo Familiar',acc:'UNFCU'},
+  {re:/netflix|disney|hbo|streaming|spotify|youtube|suscri/i,cat:'Gasto_Fijo',desc:'Suscripciones',acc:'UNFCU'},
+  {re:/renta|alquiler|arriendo/i,cat:'Gasto_Fijo',desc:'Renta',acc:'BBVA Peru'},
+  {re:/celular|teléfono|movistar|claro/i,cat:'Gasto_Fijo',desc:'Celular',acc:'BBVA Peru'},
+  {re:/ropa|zapato|libro|hogar|mueble|shopping/i,cat:'Gasto_Variable',desc:'Otros',acc:'BBVA Peru'},
+];
+
+// ─── Detectar cuenta destino por texto ──────────────────────────────────────
+function detectAccount(lo){
+  if(/bbva.*per[uú].*d[oó]lar|bbva.*usd|bbva.*d[oó]lar/i.test(lo))return'BBVA Peru';
+  if(/bbva.*per[uú].*sol|bbva.*pen|bbva.*sol/i.test(lo))return'BBVA Peru';
+  if(/bbva.*peru|bbva perú/i.test(lo))return'BBVA Peru';
+  if(/bancolombia/i.test(lo))return'Bancolombia';
+  if(/unfcu/i.test(lo))return'UNFCU';
+  if(/bbva.*colombia/i.test(lo))return'UNFCU'; // pagos hipoteca van a UNFCU
+  return null; // no detectado — se usará el default
+}
+
+// ─── Detectar moneda por texto ───────────────────────────────────────────────
+function detectCurrency(txt, lo){
+  const dm=txt.match(/\$\s*([\d,\.]+)/);
+  const pm=txt.match(/s\/\s*([\d,\.]+)/i);
+  const cm=txt.match(/([\d\.]+\.?\d*)\s*(mil(?:lones?)?|pesos?|cop\b)/i);
+  const nm=txt.match(/([\d,\.]+)/);
+  let amount=0, cur='PEN';
+  if(dm){amount=parseFloat(dm[1].replace(',',''));cur='USD';}
+  else if(pm){amount=parseFloat(pm[1].replace(',',''));cur='PEN';}
+  else if(cm){let n=parseFloat(cm[1].replace(/\./g,''));if(/mill[oó]n/i.test(cm[2]))n*=1e6;else if(/mil/i.test(cm[2]))n*=1000;amount=n;cur='COP';}
+  else if(nm){amount=parseFloat(nm[1].replace(',',''));cur='PEN';}
+  // override por palabras explícitas
+  if(/dólar|dollar|usd/i.test(lo))cur='USD';
+  else if(/sol\b|pen\b|soles/i.test(lo))cur='PEN';
+  else if(/peso|cop\b|colombia/i.test(lo)||/mil(?:lon)?\s*cop/i.test(lo))cur='COP';
+  return{amount,cur};
+}
+
+function parseMsg(txt){
+  const lo=txt.toLowerCase();
+  const{amount,cur}=detectCurrency(txt,lo);
+
+  // ── ¿Es un INGRESO? ──────────────────────────────────────────────────────
+  const isIncome=INCOME_VERBS.test(lo);
+
+  if(isIncome){
+    let incDesc='Ingreso Extra';
+    for(const p of INCOME_PATTERNS){if(p.re.test(lo)){incDesc=p.desc;break;}}
+    // Cuenta destino: intentar detectar, si no → BBVA Peru por defecto
+    const detectedAcc=detectAccount(lo)||'BBVA Peru';
+    return{amount,cur,cat:'Ingreso',desc:incDesc,acc:detectedAcc,isIncome:true};
+  }
+
+  // ── Es un GASTO (default) ────────────────────────────────────────────────
+  let cat='Gasto_Variable',desc='Otros',acc='BBVA Peru';
+  for(const p of EXPENSE_PATTERNS){if(p.re.test(lo)){cat=p.cat;desc=p.desc;acc=p.acc;break;}}
+  // La cuenta explícita en el mensaje tiene prioridad sobre el patrón
+  const detectedAcc=detectAccount(lo);
+  if(detectedAcc)acc=detectedAcc;
+  return{amount,cur,cat,desc,acc,isIncome:false};
+}
+
+function fillChat(t){document.getElementById('chat-input').value=t;document.getElementById('chat-input').focus();}
+function sendChat(){
+  const inp=document.getElementById('chat-input');
+  const txt=inp.value.trim();if(!txt)return;
+  addMsg('user',txt);inp.value='';
+  setTimeout(()=>{
+    const p=parseMsg(txt);
+    if(p.amount<=0){
+      addMsg('bot','❓ No detecté un monto. Intenta:<br>• <em>"Gasté 85 soles en restaurante"</em><br>• <em>"Recibí $3,000 dólares de viáticos en BBVA Perú"</em>','No entendí 🤔');
+      return;
+    }
+    const uv=+(toUSD(p.amount,p.cur)).toFixed(2);
+    const now=new Date();
+    const tx={
+      id:Date.now(),month:monthOf(now.toISOString()),
+      cat:p.cat,desc:p.desc,amount:p.amount,
+      currency:p.cur,account:p.acc,status:'Gastado',
+      notes:'💬 Chat',usd:uv,date:now.toISOString().split('T')[0],
+      isIncome:p.isIncome
+    };
+    S.transactions.push(tx);S.chatLog.push(tx);
+    applyTxToBalance(tx);
+    save();
+
+    if(p.isIncome){
+      const acc=p.acc;
+      const newBal=acc==='UNFCU'?fmt(S.balances.unfcu):acc==='Bancolombia'?S.balances.bancolombia.toLocaleString('es-CO')+' COP':p.cur==='PEN'?'S/'+S.balances.bbvaPEN.toLocaleString():'$'+S.balances.bbvaUSD.toLocaleString();
+      addMsg('bot',
+        `💚 <strong>Ingreso registrado:</strong> <strong style="color:var(--mint)">+${fmtAmt(p.amount,p.cur)}</strong> (≈<strong style="color:var(--mint)">${fmt(uv)}</strong>)<br>
+        📂 <strong>${p.desc}</strong> → <strong>${p.acc}</strong><br>
+        💰 Nuevo saldo ${p.acc}: <strong style="color:var(--mint)">${newBal}</strong><br>
+        <small style="color:var(--muted)">Mes: ${tx.month} · Ingreso</small>`,
+        '¡Ingreso guardado! 💚'
+      );
+    } else {
+      const acc=p.acc;
+      const newBal=acc==='UNFCU'?fmt(S.balances.unfcu):acc==='Bancolombia'?S.balances.bancolombia.toLocaleString('es-CO')+' COP':p.cur==='PEN'?'S/'+S.balances.bbvaPEN.toLocaleString():'$'+S.balances.bbvaUSD.toLocaleString();
+      addMsg('bot',
+        `✅ <strong>Gasto registrado:</strong> <strong style="color:var(--red)">${fmtAmt(p.amount,p.cur)}</strong> (≈${fmt(uv)}) en <strong>${p.desc}</strong><br>
+        💳 Cuenta: <strong>${p.acc}</strong> → nuevo saldo: <strong style="color:var(--peach)">${newBal}</strong><br>
+        <small style="color:var(--muted)">Mes: ${tx.month} · ${p.cat.replace('_',' ')}</small>`,
+        'Guardado ✨'
+      );
+    }
+    renderChatHistory();
+    renderDash();
+  },280);
+}
+function addMsg(type,html,title=''){
+  const box=document.getElementById('chat-messages');
+  const d=document.createElement('div');d.className='chat-msg '+type;
+  d.innerHTML=type==='bot'&&title?`<div class="msg-title">${title}</div>${html}`:html;
+  box.appendChild(d);box.scrollTop=box.scrollHeight;
+}
+function renderChatHistory(){
+  const tb=document.getElementById('chat-history');
+  const items=S.chatLog.slice().reverse();
+  if(!items.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:18px;">Sin movimientos por chat aún</td></tr>';return;}
+  tb.innerHTML=items.map(t=>{
+    const isInc=t.cat==='Ingreso'||t.isIncome;
+    const sign=isInc
+      ?`<span style="color:var(--mint);font-weight:700;">+${fmt(t.usd)}</span>`
+      :`<span style="color:var(--red);font-weight:700;">−${fmt(t.usd)}</span>`;
+    return`<tr><td>${t.desc}</td><td>${catBadge(t.cat)}</td><td>${fmtAmt(t.amount,t.currency)}</td><td>${sign}</td><td><span class="badge badge-lav">${t.account}</span></td><td><button class="btn btn-danger btn-sm" onclick="delChat(${t.id})">✕</button></td></tr>`;
+  }).join('');
+}
+function delChat(id){const tx=S.transactions.find(t=>t.id===id);if(tx)applyTxToBalance(tx,true);S.transactions=S.transactions.filter(t=>t.id!==id);S.chatLog=S.chatLog.filter(t=>t.id!==id);save();renderChatHistory();renderDash();}
+
+// TRANSACTIONS
+function applyTxToBalance(tx, reverse=false){
+  // Only apply to "Hecho/Gastado" transactions — not planned ones
+  if(tx.status !== 'Gastado') return;
+  const usd = parseFloat(tx.usd) || 0;
+  const isInc = tx.cat === 'Ingreso' || tx.isIncome;
+  const sign = reverse ? (isInc ? -1 : 1) : (isInc ? 1 : -1);
+  const acc = tx.account;
+  const cur = tx.currency;
+  const amt = parseFloat(tx.amount) || 0;
+
+  if(acc === 'BBVA Peru' || acc === 'Ambas'){
+    if(cur === 'USD') S.balances.bbvaUSD = Math.max(0, (parseFloat(S.balances.bbvaUSD)||0) + sign * amt);
+    else if(cur === 'PEN') S.balances.bbvaPEN = Math.max(0, (parseFloat(S.balances.bbvaPEN)||0) + sign * amt);
+    else S.balances.bbvaUSD = Math.max(0, (parseFloat(S.balances.bbvaUSD)||0) + sign * usd);
+  }
+  if(acc === 'UNFCU' || acc === 'Ambas'){
+    if(cur === 'USD') S.balances.unfcu = Math.max(0, (parseFloat(S.balances.unfcu)||0) + sign * amt);
+    else S.balances.unfcu = Math.max(0, (parseFloat(S.balances.unfcu)||0) + sign * usd);
+  }
+  if(acc === 'Bancolombia'){
+    if(cur === 'COP') S.balances.bancolombia = Math.max(0, (parseFloat(S.balances.bancolombia)||0) + sign * amt);
+    else S.balances.bancolombia = Math.max(0, (parseFloat(S.balances.bancolombia)||0) + sign * usd * S.rates.COP);
+  }
+  // If it's a debt payment, also reduce tcBalance
+  if(tx.cat === 'Deuda' && tx.desc && tx.desc.includes('UNFCU') && !isInc){
+    S.tcBalance = Math.max(0, (parseFloat(S.tcBalance)||0) - usd);
+  }
+}
+
+function addTx(){
+  const typeEl=document.getElementById('tx-type');
+  const catEl=document.getElementById('tx-cat');
+  const descEl=document.getElementById('tx-desc');
+  const amountEl=document.getElementById('tx-amount');
+  const currencyEl=document.getElementById('tx-currency');
+  const dateEl=document.getElementById('tx-date');
+  const accountEl=document.getElementById('tx-account');
+  const statusEl=document.getElementById('tx-status');
+  const notesEl=document.getElementById('tx-notes');
+
+  const type=typeEl?typeEl.value:'expense';
+  const cat=catEl?catEl.value:'Gasto_Variable';
+  const desc=descEl?descEl.value:'Otros';
+  const amount=parseFloat(amountEl?amountEl.value:0)||0;
+  if(amount<=0){alert('Ingresa un monto mayor a 0');return;}
+  const currency=currencyEl?currencyEl.value:'USD';
+  const date=dateEl?dateEl.value:'';
+  const account=accountEl?accountEl.value:'BBVA Peru';
+  const status=statusEl?statusEl.value:'Gastado';
+  const notes=notesEl?notesEl.value:'';
+  const month=date?monthOf(date):monthOf(new Date().toISOString());
+  const usd=+(toUSD(amount,currency)).toFixed(2);
+  const isIncome=cat==='Ingreso'||type==='income';
+
+  const tx={id:Date.now(),month,cat,desc,amount,currency,account,status,notes,usd,date,isIncome};
+  S.transactions.push(tx);
+  applyTxToBalance(tx);
+  save();
+
+  // Reset fields
+  if(amountEl)amountEl.value='';
+  if(notesEl)notesEl.value='';
+
+  // Refresh views
+  const txFilter=document.getElementById('tx-filter');
+  if(txFilter)renderTxs();
+  renderDash();
+
+  // Visual feedback
+  const btn=document.querySelector('[onclick="addTx()"]');
+  if(btn){const orig=btn.textContent;btn.textContent='✅ Guardado';setTimeout(()=>btn.textContent=orig,1200);}
+}
+function renderTxs(){
+  const f=document.getElementById('tx-filter').value;
+  let txs=S.transactions;if(f!=='all')txs=txs.filter(t=>t.month===f);
+
+  // --- SUMMARY BY CATEGORY ---
+  const sumEl=document.getElementById('tx-summary');
+  const incomes=txs.filter(t=>t.cat==='Ingreso'||t.isIncome);
+  const expenses=txs.filter(t=>t.cat!=='Ingreso'&&!t.isIncome);
+  const totalInc=incomes.reduce((a,b)=>a+b.usd,0);
+  const totalExp=expenses.reduce((a,b)=>a+b.usd,0);
+  const net=totalInc-totalExp;
+  // group expenses by category
+  const cats={};expenses.forEach(t=>{if(!cats[t.cat])cats[t.cat]={total:0,count:0};cats[t.cat].total+=t.usd;cats[t.cat].count++;});
+  const catColors={Ingreso:'var(--mint)',Gasto_Fijo:'var(--sky)',Gasto_Variable:'var(--lav)',Deuda:'var(--red)',Hipoteca:'var(--peach)',Ahorro:'var(--mint)',Transferencia:'var(--muted)'};
+  sumEl.innerHTML=`
+    <div class="cards-grid" style="margin-bottom:13px;">
+      <div class="card card-mint"><div class="card-label">Total Ingresos</div><div class="card-value" style="color:var(--mint);">+${fmt(totalInc)}</div><div class="card-sub">${incomes.length} transacciones</div></div>
+      <div class="card card-red"><div class="card-label">Total Gastos</div><div class="card-value" style="color:var(--red);">−${fmt(totalExp)}</div><div class="card-sub">${expenses.length} transacciones</div></div>
+      <div class="card ${net>=0?'card-mint':'card-red'}"><div class="card-label">Balance</div><div class="card-value" style="color:${net>=0?'var(--mint)':'var(--red)'};">${net>=0?'+':''}${fmt(net)}</div><div class="card-sub">${f==='all'?'Total histórico':f}</div></div>
+    </div>
+    ${Object.keys(cats).length?`<div class="table-wrap"><table>
+      <thead><tr><th>Categoría</th><th>Total USD</th><th>Transacciones</th></tr></thead>
+      <tbody>${Object.entries(cats).sort((a,b)=>b[1].total-a[1].total).map(([cat,d])=>`
+        <tr><td><span class="badge" style="background:rgba(0,0,0,.2);color:${catColors[cat]||'var(--text2)'};border-color:transparent;">${cat.replace('_',' ')}</span></td>
+        <td style="color:${catColors[cat]||'var(--text2)'};font-weight:700;">−${fmt(d.total)}</td>
+        <td style="color:var(--muted);">${d.count}</td></tr>`).join('')}
+      </tbody></table></div>`:''} `;
+
+  // --- INDIVIDUAL DETAIL TABLE ---
+  const tb=document.getElementById('tx-tbody');
+  if(!txs.length){tb.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:22px;">Sin transacciones</td></tr>';return;}
+  const sorted=[...txs].sort((a,b)=>(b.date||'')>(a.date||'')?1:-1);
+  tb.innerHTML=sorted.map(t=>{
+    const isInc=t.cat==='Ingreso'||t.isIncome;
+    const usdDisplay=isInc
+      ?`<span style="color:var(--mint);font-weight:700;">+${fmt(t.usd)}</span>`
+      :`<span style="color:var(--red);font-weight:700;">−${fmt(t.usd)}</span>`;
+    return`<tr>
+      <td><span class="badge badge-muted">${t.month}</span></td>
+      <td style="color:var(--muted);font-size:11px;">${t.date||'—'}</td>
+      <td>${t.desc}</td>
+      <td>${catBadge(t.cat)}</td>
+      <td>${fmtAmt(t.amount,t.currency)}</td>
+      <td>${usdDisplay}</td>
+      <td><span class="badge badge-lav">${t.account}</span></td>
+      <td>${sBadge(t.status)}</td>
+      <td style="color:var(--muted);font-size:11px;">${t.notes||''}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="delTx(${t.id})">✕</button></td></tr>`;
+  }).join('');
+}
+function delTx(id){const tx=S.transactions.find(t=>t.id===id);if(tx)applyTxToBalance(tx,true);S.transactions=S.transactions.filter(t=>t.id!==id);save();renderTxs();renderDash();}
+
+// SAVINGS
+function addGoal(){
+  S.goals.push({id:Date.now(),name:document.getElementById('g-name').value||'Meta',target:parseFloat(document.getElementById('g-target').value)||1000,current:parseFloat(document.getElementById('g-current').value)||0,rate:parseFloat(document.getElementById('g-rate').value)||0,monthly:parseFloat(document.getElementById('g-monthly').value)||100,emoji:document.getElementById('g-emoji').value||'💰'});
+  save();renderGoals();
+}
+function renderGoals(){
+  const pas=['#60d4b5','#60a5fa','#4ade80','#38bdf8','#818cf8'];
+  document.getElementById('goals-container').innerHTML=S.goals.map((g,i)=>{
+    const pct=Math.min(g.current/g.target*100,100);
+    const needed=g.target-g.current;
+    const mo=needed>0?Math.ceil(needed/g.monthly):0;
+    const col=pas[i%pas.length];
+    return`<div class="goal-card"><div class="goal-header"><div class="goal-name">${g.emoji} ${g.name}</div><div class="goal-pct">${pct.toFixed(1)}%</div></div>
+    <div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:9px;">
+      <div><div style="font-size:10px;color:var(--muted);">Ahorrado</div><div style="font-weight:700;color:${col};">${fmt(g.current)}</div></div>
+      <div><div style="font-size:10px;color:var(--muted);">Meta</div><div style="font-weight:700;">${fmt(g.target)}</div></div>
+      <div><div style="font-size:10px;color:var(--muted);">Falta</div><div style="font-weight:700;color:var(--red);">${fmt(Math.max(0,needed))}</div></div>
+      <div><div style="font-size:10px;color:var(--muted);">+Mensual</div><div style="font-weight:700;color:var(--mint);">${fmt(g.monthly)}</div></div>
+      <div><div style="font-size:10px;color:var(--muted);">Meses</div><div style="font-weight:700;color:var(--lav);">${mo===0?'¡Logrado! 🎉':mo}</div></div>
+    </div>
+    <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%;background:${col};"></div></div>
+    <div class="btn-row" style="margin-top:9px;">
+      <button class="btn btn-sm btn-ghost" onclick="contributeG(${g.id})">+ Contribuir</button>
+      <button class="btn btn-sm btn-danger" onclick="delG(${g.id})">Eliminar</button>
+    </div></div>`;
+  }).join('');
+}
+function contributeG(id){const a=parseFloat(prompt('¿Cuánto USD contribuir?'));if(a&&!isNaN(a)){const g=S.goals.find(g=>g.id===id);if(g){g.current+=a;save();renderGoals();}}}
+function delG(id){S.goals=S.goals.filter(g=>g.id!==id);save();renderGoals();}
+
+// DEBTS
+function renderDebts(){
+  const pay=parseFloat(document.getElementById('tc-pay')?.value)||550;
+  const balS=parseFloat(document.getElementById('tc-bal')?.value)||S.tcBalance;
+  const r=16.49/100/12;let bal=balS;
+  const months=['Abril','Mayo','Junio'];const rows=[];
+  for(let i=0;i<months.length&&bal>0;i++){const int=bal*r;const p=Math.min(pay,bal+int);const end=Math.max(0,bal+int-p);rows.push({month:months[i],start:bal,int,pay:p,end});bal=end;}
+  const ti=rows.reduce((a,b)=>a+b.int,0);
+  document.getElementById('tc-val').textContent='$'+balS.toLocaleString();
+  document.getElementById('tc-int').textContent='~'+fmt(ti)+' total';
+  document.getElementById('tc-mo').textContent=rows.length;
+  document.getElementById('tc-mo-note').textContent=`Con ${fmt(pay)}/mes`;
+  document.getElementById('tc-tbody').innerHTML=rows.map(r=>`<tr><td><strong>${r.month} 2026</strong></td><td style="color:var(--red);">${fmt(r.start)}</td><td style="color:var(--peach);">+${fmt(r.int)}</td><td style="color:var(--mint);">−${fmt(r.pay)}</td><td style="color:${r.end<=0?'var(--mint)':'var(--red)'};font-weight:700;">${r.end<=0?'✅ ¡LIQUIDADA!':fmt(r.end)}</td><td>${r.end<=0?'<span class="badge badge-mint">¡Libre! 🎉</span>':'<span class="badge badge-peach">En progreso</span>'}</td></tr>`).join('');
+}
+
+// MORTGAGE
+let mC=null;
+function renderMort(){
+  document.getElementById('mort-official').innerHTML=MORT_DATA.map(r=>`<tr><td><strong>#${r.n}</strong></td><td>${fmtCOP(r.si)}</td><td style="color:var(--mint);">${fmtCOP(r.cap)}</td><td style="color:var(--red);">${fmtCOP(r.int)}</td><td style="font-weight:700;color:var(--peach);">${fmtCOP(r.cuota)}</td><td style="color:var(--lav);">${fmtCOP(r.sf)}</td></tr>`).join('');
+  calcMort();
+}
+function calcMort(){
+  const P=parseFloat(document.getElementById('m-debt').value)||108883800;
+  const ann=parseFloat(document.getElementById('m-rate').value)/100||0.12;
+  const n=parseInt(document.getElementById('m-term').value)||60;
+  const extra=parseFloat(document.getElementById('m-extra').value)||0;
+  const r=Math.pow(1+ann,1/12)-1;
+  const std=P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1);
+  let bal=P,tiN=0,balE=P,tiE=0,moE=0;const bN=[],bE=[];
+  for(let i=0;i<n;i++){const ii=bal*r;tiN+=ii;bal-=(std-ii);bN.push(Math.max(0,bal));}
+  for(let i=0;i<n&&balE>0;i++){const ii=balE*r;tiE+=ii;balE-=(std+extra-ii);bE.push(Math.max(0,balE));moE=i+1;if(balE<=0)break;}
+  const saved=tiN-tiE;
+  document.getElementById('mort-result').innerHTML=`<div class="cards-grid">
+    <div class="card card-peach"><div class="card-label">Cuota normal</div><div class="card-value" style="color:var(--peach);">${fmtCOP(Math.round(std))}</div><div class="card-sub">≈ ${fmt(std/S.rates.COP)} USD</div></div>
+    <div class="card card-red"><div class="card-label">Total intereses (normal)</div><div class="card-value" style="color:var(--red);">${(tiN/1e6).toFixed(1)}M COP</div></div>
+    ${extra>0?`<div class="card card-mint"><div class="card-label">Con abono ${fmtCOP(extra)}</div><div class="card-value" style="color:var(--mint);">${moE} meses</div><div class="card-sub">Ahorras ${(saved/1e6).toFixed(1)}M COP</div></div>`:''}
+  </div>`;
+  if(mC)mC.destroy();
+  const ctx=document.getElementById('chart-mort').getContext('2d');
+  const lbs=Array.from({length:n},(_,i)=>'M'+(i+1));
+  mC=new Chart(ctx,{type:'line',data:{labels:lbs,datasets:[{label:'Sin abono',data:bN,borderColor:'#f87171',backgroundColor:'rgba(248,113,113,0.04)',borderWidth:2,pointRadius:0,tension:.3},...(extra>0?[{label:'Con abono',data:bE,borderColor:'#4ade80',backgroundColor:'rgba(74,222,128,0.04)',borderWidth:2,pointRadius:0,tension:.3}]:[]),]},options:{plugins:{legend:{labels:{color:'#5a7a99',font:{size:10}}}},scales:{y:{grid:{color:'#243447'},ticks:{color:'#5a7a99',callback:v=>(v/1e6).toFixed(0)+'M'}},x:{grid:{display:false},ticks:{color:'#5a7a99',maxTicksLimit:10}}}}});
+}
+
+// PLAN — dynamic, reads from real transactions
+function renderPlan(){
+  // Compute real TC balance from transactions
+  const tcPaid=S.transactions.filter(t=>t.cat==='Deuda'&&t.desc&&t.desc.includes('UNFCU')&&t.status==='Gastado').reduce((a,b)=>a+(b.usd||0),0);
+  const tcCurrent=parseFloat(S.tcBalance)||0;
+  const oxGoal=S.goals.find(g=>g.name.includes('Oxford'))||S.goals[0];
+  const oxCurrent=oxGoal?oxGoal.current:0;
+
+  // KPI cards
+  const kpis=document.getElementById('plan-kpis');
+  if(kpis) kpis.innerHTML=`
+    <div class="card card-red"><div class="card-label">Saldo TC UNFCU</div><div class="card-value" style="color:var(--red);">${fmt(tcCurrent)}</div><div class="card-sub">Pagado histórico: ${fmt(tcPaid)}</div></div>
+    <div class="card card-mint"><div class="card-label">Oxford Fund actual</div><div class="card-value" style="color:var(--mint);">${fmt(oxCurrent)}</div><div class="card-sub">Meta: $20,000</div></div>
+    <div class="card card-lav"><div class="card-label">TC liquida en</div><div class="card-value" style="color:var(--lav);">${tcCurrent<=0?'✅ ¡YA!':Math.ceil(tcCurrent/550)+' meses'}</div><div class="card-sub">${tcCurrent<=0?'¡Libre de deuda!':'Pagando $550/mes'}</div></div>
+    <div class="card card-peach"><div class="card-label">Liquidación Jun</div><div class="card-value" style="color:var(--peach);">$11,475</div><div class="card-sub">51 meses × $225</div></div>`;
+
+  const items=[
+    {s:'done',m:'Enero 2026',t:'Base Financiera Establecida',b:`✅ Ingreso: $2,670 · Ahorros: ~$4,000 · TC saldo: $2,956<br>Todos los gastos fijos al día. Buen punto de partida.`},
+    {s:'done',m:'Febrero 2026',t:'Gran pago a TC · Concierto · Gastos altos',b:`💳 TC: Pagado $953 → saldo $2,003<br>⚠️ Restaurantes: S/1,084 (~$328) — 3× lo normal<br>🎵 The Killers: gasto especial, no recurrente<br>📱 Celular pagado el 26 de feb ✅`},
+    {s:'active',m:'Marzo 2026 🌸',t:'¡Primer mes con hipoteca! Mes de adaptación.',b:`🏠 <strong>1er PAGO HIPOTECA (19 mar):</strong> 2,388,393 COP ≈ $637<br>💳 TC UNFCU: pago $550 → saldo ≈ ${fmt(Math.max(0,tcCurrent))}<br>🛡️ Seguridad Social: $104 (posiblemente último mes)<br>📱 Celular ya pagado ✅ (26 feb)<br>🎯 Meta recortes: restaurantes S/180, hormiga S/120, Uber S/80<br>💰 <strong>Margen Oxford este mes: ~$299 USD</strong>`},
+    {s:tcCurrent<=440?'active':'future',m:'Abril 2026',t:'TC casi liquidada — Momentum creciente',b:`💳 TC: pago $550 → saldo ≈ ${fmt(Math.max(0,tcCurrent-550))}<br>🏠 Hipoteca: 2,388,393 COP<br>❌ Seguridad Social: $0 (si entregaron el apto)<br>💰 <strong>Oxford Fund: ~$350 USD extra</strong> · Total ≈ ${fmt(oxCurrent+350)}`},
+    {s:tcCurrent<=0?'done':'future',m:'Mayo 2026 🎉',t:'TC UNFCU ¡LIQUIDADA! Gran liberación de flujo',b:`💳 TC: ${tcCurrent<=0?'<strong style="color:var(--mint)">✅ YA LIQUIDADA 🎉</strong>':'pago final ~$550 → <strong>SALDO $0 ✅🎉</strong>'}<br>🏠 Hipoteca continúa normalmente<br>🎯 <strong>LIBERAS ~$550/mes</strong> → Oxford Fund + hipoteca<br>💰 <strong>Oxford Fund extra: +$550</strong> · Total ≈ ${fmt(oxCurrent+900)}`},
+    {s:'future',m:'Junio 2026 💰',t:'¡Liquidación Laboral! Gran hito — $11,475',b:`💰 <strong>51 meses × $225 = $11,475 USD</strong><br>📊 Distribución recomendada:<br>&nbsp;→ 50% Abono hipoteca: $5,737 ≈ 21.5M COP (reduce ~8 meses)<br>&nbsp;→ 50% Oxford Fund: $5,737<br>🎓 Oxford Fund total estimado: ~${fmt(oxCurrent+900+11475*0.5)}+ USD`},
+    {s:'future',m:'Jul–Sep 2026',t:'Recta final — Máximo ahorro',b:`💰 $600-700/mes hacia Oxford<br>🏠 Considera arrendar el apto (~1.5M COP/mes) para cubrir la hipoteca<br>🎓 <strong>Meta: Oxford Fund >$15,000 USD al llegar</strong><br>📦 Prepara visa UK, seguro médico, primer mes en Oxford`},
+    {s:'future',m:'Octubre 2026 🎓',t:'Oxford University · Social Data Science',b:`📚 Inicio del programa · University of Oxford<br>🏠 Tu apto rentado cubre la hipoteca → cero deuda adicional<br>💼 Visa estudiante permite trabajar 20h/semana<br>💡 Tu tracker financiero fue parte del viaje aquí. Y es una habilidad de datos científicos.`},
+  ];
+  document.getElementById('plan-timeline').innerHTML=items.map(t=>`<div class="timeline-item"><div class="timeline-dot ${t.s}">${t.s==='done'?'✅':t.s==='active'?'🌊':'○'}</div><div class="timeline-content"><div class="timeline-month">${t.m}</div><div class="timeline-title">${t.t}</div><div class="timeline-body">${t.b}</div></div></div>`).join('');
+}
+
+async function analyzePlanWithAI(){
+  const btn=document.getElementById('plan-ai-btn');
+  const out=document.getElementById('plan-ai-output');
+  btn.disabled=true;btn.textContent='⏳ Analizando...';
+  out.innerHTML='<div class="alert alert-lav">🤖 Claude está leyendo tus datos y actualizando el plan...</div>';
+
+  const tc=parseFloat(S.tcBalance)||0;
+  const oxGoal=S.goals.find(g=>g.name.includes('Oxford'))||S.goals[0];
+  const ox=oxGoal?oxGoal.current:0;
+  const txSummary=summarizeTransactions();
+
+  const prompt=`Eres el asistente financiero de Noriana, una abogada de derechos humanos que empieza una maestría en Oxford en octubre 2026. Analiza su situación y actualiza el plan de pagos.
+
+DATOS REALES ACTUALES (${new Date().toLocaleDateString('es-PE')}):
+- Oxford Fund: $${ox.toLocaleString()} USD (meta: $20,000)
+- TC UNFCU saldo: $${tc.toLocaleString()} USD (16.49% anual)
+- Saldos: BBVA USD $${S.balances.bbvaUSD}, BBVA PEN S/${S.balances.bbvaPEN}, UNFCU $${S.balances.unfcu}
+- Liquidación laboral (junio): ~$11,475 USD (51 meses × $225)
+- Hipoteca BBVA Colombia: 108.88M COP a 11.999%, cuota 2,388,393 COP/mes
+
+RESUMEN DE TRANSACCIONES REALES:
+${txSummary}
+
+Genera un análisis conciso (4-6 párrafos) en español que incluya:
+1. Estado actual vs lo planificado
+2. Si va bien o hay desviaciones importantes
+3. Proyección actualizada de cuándo liquida la TC y cuánto tendrá en Oxford Fund al llegar
+4. 2-3 recomendaciones concretas y accionables para este mes
+
+Responde directamente en HTML simple usando <strong>, <br>, colores inline si ayudan. Sin preamble.`;
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const data=await resp.json();
+    const text=data.content?.find(b=>b.type==='text')?.text||'Sin respuesta';
+    out.innerHTML=`<div class="form-card" style="border-color:var(--lav-border);background:var(--lav-dim);">
+      <div style="font-size:11px;color:var(--lav);font-weight:700;margin-bottom:8px;">✨ ANÁLISIS IA — ${new Date().toLocaleDateString('es-PE')}</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7;">${text}</div>
+    </div>`;
+  }catch(e){
+    out.innerHTML=`<div class="alert alert-rose">❌ Error al conectar con IA: ${e.message}</div>`;
+  }
+  btn.disabled=false;btn.textContent='✨ Actualizar plan con IA';
+}
+
+// BUDGET — dynamic
+function getBudget(month){
+  if(!S.budgets)S.budgets=buildDefaultBudgets();
+  return S.budgets[month]||null;
+}
+function ensureBudget(month){
+  if(!S.budgets)S.budgets=buildDefaultBudgets();
+  if(!S.budgets[month]) S.budgets[month]={month,income:2680,items:[]};
+  return S.budgets[month];
+}
+
+function renderBudget(){
+  const selEl=document.getElementById('budget-month-sel');
+  if(!selEl)return;
+  const month=selEl.value;
+  const budget=ensureBudget(month);
+
+  // Populate income field
+  document.getElementById('budget-income').value=budget.income||'';
+
+  // Get real transactions for this month
+  const txs=S.transactions.filter(t=>t.month===month&&t.status==='Gastado');
+  const income=txs.filter(t=>t.cat==='Ingreso'||t.isIncome).reduce((a,b)=>a+(b.usd||0),0);
+  const totalReal=txs.filter(t=>t.cat!=='Ingreso'&&!t.isIncome).reduce((a,b)=>a+(b.usd||0),0);
+  const totalTarget=budget.items.reduce((a,b)=>a+(b.target||0),0);
+  const budgetIncome=budget.income||0;
+  const surplus=budgetIncome-totalReal;
+
+  // Summary cards
+  const sc=document.getElementById('budget-summary-cards');
+  sc.innerHTML=`
+    <div class="card card-lav"><div class="card-label">Ingresos registrados</div><div class="card-value" style="color:var(--lav);">+${fmt(income||budgetIncome)}</div><div class="card-sub">${income>0?'Real registrado':'Presupuestado'}</div></div>
+    <div class="card card-${totalReal>totalTarget?'red':'mint'}"><div class="card-label">Gastos reales</div><div class="card-value" style="color:var(--${totalReal>totalTarget?'red':'mint'});">${fmt(totalReal)}</div><div class="card-sub">vs meta ${fmt(totalTarget)}</div></div>
+    <div class="card card-${surplus>=0?'mint':'red'}"><div class="card-label">Margen / Déficit</div><div class="card-value" style="color:var(--${surplus>=0?'mint':'red'});">${surplus>=0?'+':''}${fmt(surplus)}</div><div class="card-sub">${surplus>=0?'Para Oxford 🎓':'Por encima del presupuesto'}</div></div>
+    <div class="card card-sky"><div class="card-label">Ejecución presupuesto</div><div class="card-value" style="color:var(--sky);">${totalTarget>0?Math.round(totalReal/totalTarget*100):0}%</div><div class="card-sub">${totalReal<=totalTarget?'✅ Dentro del rango':'⚠️ Sobre el presupuesto'}</div></div>`;
+
+  // Build real spending map by desc
+  const realMap={};
+  txs.filter(t=>t.cat!=='Ingreso'&&!t.isIncome).forEach(t=>{
+    const key=t.desc;
+    realMap[key]=(realMap[key]||0)+(t.usd||0);
+  });
+
+  // Priority colors
+  const pCol={obligatorio:'var(--red)',alta:'var(--rose)',necesario:'var(--peach)',temporal:'var(--sky)',ajustable:'var(--lav)',reducir:'var(--mint)',minimo:'var(--muted)'};
+  const pLabel={obligatorio:'Obligatorio',alta:'Alta prior.',necesario:'Necesario',temporal:'Temporal',ajustable:'Ajustable',reducir:'Reducir',minimo:'Mínimo'};
+
+  // Table
+  const tb=document.getElementById('budget-table');
+  const rows=budget.items.map((item,i)=>{
+    const real=realMap[item.desc]||0;
+    const delta=item.target-real;
+    const pct=item.target>0?Math.round(real/item.target*100):0;
+    const over=real>item.target;
+    const barW=Math.min(pct,100);
+    const barColor=over?'var(--red)':pct>80?'var(--peach)':'var(--mint)';
+    return`<tr>
+      <td>
+        <div style="font-size:12px;font-weight:600;">${item.desc}</div>
+        <div style="height:4px;background:var(--surface3);border-radius:4px;margin-top:4px;width:100%"><div style="height:4px;width:${barW}%;background:${barColor};border-radius:4px;transition:width .4s;"></div></div>
+      </td>
+      <td style="color:var(--text2);font-weight:600;">${fmt(item.target)}</td>
+      <td style="color:${real>0?'var(--text)':'var(--muted)'};">${real>0?fmt(real):'—'}</td>
+      <td style="color:${over?'var(--red)':'var(--mint)'};font-weight:700;">${over?'−':'+'}&nbsp;${fmt(Math.abs(delta))}</td>
+      <td><span class="badge badge-muted">${pct}%</span></td>
+      <td><button class="btn btn-danger btn-sm" onclick="delBudgetItem('${month}',${i})">✕</button></td>
+    </tr>`;
+  }).join('');
+
+  // Unbudgeted spending
+  let extraRows='';
+  Object.entries(realMap).forEach(([desc,real])=>{
+    if(!budget.items.find(i=>i.desc===desc)){
+      extraRows+=`<tr style="opacity:.7;">
+        <td><div style="font-size:12px;font-weight:600;color:var(--peach);">⚠️ ${desc}</div><div style="font-size:10px;color:var(--muted);">No presupuestado</div></td>
+        <td style="color:var(--muted);">—</td>
+        <td style="color:var(--peach);font-weight:600;">${fmt(real)}</td>
+        <td style="color:var(--red);">−${fmt(real)}</td>
+        <td><span class="badge badge-peach">Nuevo</span></td>
+        <td></td>
+      </tr>`;
+    }
+  });
+
+  tb.innerHTML=rows+extraRows+`<tr style="background:var(--surface2);">
+    <td><strong>TOTAL</strong></td>
+    <td style="font-weight:700;color:var(--lav);">${fmt(totalTarget)}</td>
+    <td style="font-weight:700;color:${totalReal>totalTarget?'var(--red)':'var(--mint)'};">${fmt(totalReal)}</td>
+    <td style="font-weight:700;color:${surplus>=0?'var(--mint)':'var(--red)'};">${surplus>=0?'+':''}${fmt(surplus)}</td>
+    <td colspan="2"></td>
+  </tr>`;
+
+  // Balance panel
+  const bp=document.getElementById('budget-balance-panel');
+  bp.innerHTML=`
+    <div class="card card-lav" style="margin-bottom:9px;"><div class="card-label">Ingreso esperado</div><div class="card-value" style="color:var(--lav);">${fmt(budgetIncome)}</div></div>
+    <div class="card card-red" style="margin-bottom:9px;"><div class="card-label">Total presupuestado</div><div class="card-value" style="color:var(--red);">${fmt(totalTarget)}</div></div>
+    <div class="card card-${surplus>=0?'mint':'red'}" style="margin-bottom:9px;"><div class="card-label">Para Oxford / Ahorro</div><div class="card-value" style="color:var(--${surplus>=0?'mint':'red'});">${fmt(Math.max(0,surplus))}</div></div>
+    ${totalReal>0?`<div class="card" style="margin-bottom:9px;border-color:var(--border2);"><div class="card-label">Gastos reales registrados</div><div class="card-value" style="color:var(--text);">${fmt(totalReal)}</div><div class="card-sub">Ejecución: ${Math.round(totalReal/totalTarget*100)||0}% del presupuesto</div></div>`:''}`;
+}
+
+function updateBudgetIncome(){
+  const month=document.getElementById('budget-month-sel')?.value;
+  if(!month)return;
+  const b=ensureBudget(month);
+  b.income=parseFloat(document.getElementById('budget-income').value)||0;
+  save();renderBudget();
+}
+
+function cloneBudgetFromPrev(){
+  const months=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre'];
+  const sel=document.getElementById('budget-month-sel');
+  const curIdx=months.indexOf(sel.value);
+  if(curIdx<=0){alert('No hay mes anterior disponible.');return;}
+  const prev=months[curIdx-1];
+  const prevB=getBudget(prev);
+  if(!prevB){alert(`No hay presupuesto guardado para ${prev}.`);return;}
+  const cur=ensureBudget(sel.value);
+  cur.items=JSON.parse(JSON.stringify(prevB.items));
+  cur.income=prevB.income;
+  save();renderBudget();
+  // show confirmation
+  const inc=document.getElementById('budget-income');
+  if(inc){inc.style.borderColor='var(--mint)';setTimeout(()=>inc.style.borderColor='',1200);}
+}
+
+function openAddBudgetItem(){
+  const el=document.getElementById('budget-add-item');
+  el.style.display=el.style.display==='none'?'block':'none';
+}
+
+function addBudgetItem(){
+  const month=document.getElementById('budget-month-sel')?.value;
+  if(!month)return;
+  const desc=document.getElementById('bi-desc').value.trim();
+  const cat=document.getElementById('bi-cat').value;
+  const target=parseFloat(document.getElementById('bi-target').value)||0;
+  const priority=document.getElementById('bi-priority').value;
+  if(!desc||!target){alert('Completa descripción y meta.');return;}
+  const b=ensureBudget(month);
+  b.items.push({cat,desc,target,priority});
+  save();renderBudget();
+  document.getElementById('budget-add-item').style.display='none';
+  document.getElementById('bi-desc').value='';
+  document.getElementById('bi-target').value='';
+}
+
+function delBudgetItem(month,idx){
+  if(!S.budgets[month])return;
+  S.budgets[month].items.splice(idx,1);
+  save();renderBudget();
+}
+
+async function analyzeWithAI(){
+  const btn=document.getElementById('ai-btn');
+  const out=document.getElementById('ai-analysis');
+  const month=document.getElementById('budget-month-sel')?.value||'Marzo';
+  btn.disabled=true;btn.textContent='⏳ Analizando...';
+  out.innerHTML='<div class="alert alert-lav">🤖 Claude está analizando tu presupuesto de '+month+'...</div>';
+
+  const budget=getBudget(month)||{items:[],income:2680};
+  const txs=S.transactions.filter(t=>t.month===month&&t.status==='Gastado');
+  const totalReal=txs.filter(t=>t.cat!=='Ingreso'&&!t.isIncome).reduce((a,b)=>a+(b.usd||0),0);
+  const totalTarget=budget.items.reduce((a,b)=>a+(b.target||0),0);
+
+  const detalleReal=Object.entries(txs.filter(t=>t.cat!=='Ingreso'&&!t.isIncome).reduce((acc,t)=>{acc[t.desc]=(acc[t.desc]||0)+(t.usd||0);return acc},{})).map(([k,v])=>`${k}: ${fmt(v)}`).join(', ')||'Sin datos aún';
+  const detalleMeta=budget.items.map(i=>`${i.desc}: ${fmt(i.target)} (${i.priority})`).join(', ')||'Sin presupuesto definido';
+
+  const prompt=`Eres asistente financiero de Noriana. Analiza su presupuesto de ${month} 2026.
+
+PRESUPUESTADO (${month}): Ingreso esperado $${budget.income} | Total metas: $${totalTarget.toFixed(0)}
+Líneas: ${detalleMeta}
+
+REAL REGISTRADO: Total gastado: $${totalReal.toFixed(0)}
+Detalle: ${detalleReal}
+
+CONTEXTO: TC UNFCU saldo $${S.tcBalance} | Oxford Fund $${(S.goals[0]||{}).current||0} / $20,000 meta
+
+Da un análisis breve (3-4 párrafos) en español con:
+1. Evaluación del mes: ¿está dentro del presupuesto?
+2. Categorías con mayor desviación (positiva o negativa)
+3. Recomendaciones concretas para el resto del mes
+4. Impacto en la meta Oxford
+
+Responde en HTML simple (solo <strong>, <br>, listas con •). Sin introducción.`;
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:900,messages:[{role:'user',content:prompt}]})});
+    const data=await resp.json();
+    const text=data.content?.find(b=>b.type==='text')?.text||'Sin respuesta';
+    out.innerHTML=`<div class="form-card" style="border-color:var(--lav-border);background:var(--lav-dim);">
+      <div style="font-size:11px;color:var(--lav);font-weight:700;margin-bottom:8px;">✨ ANÁLISIS IA — ${month} 2026 · ${new Date().toLocaleDateString('es-PE')}</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.75;">${text}</div>
+    </div>`;
+  }catch(e){
+    out.innerHTML=`<div class="alert alert-rose">❌ Error: ${e.message}</div>`;
+  }
+  btn.disabled=false;btn.textContent='✨ Analizar con IA este mes';
+}
+
+function summarizeTransactions(){
+  const byMonth={};
+  S.transactions.forEach(t=>{
+    if(!byMonth[t.month])byMonth[t.month]={income:0,expense:0,cats:{}};
+    const usd=t.usd||0;
+    if(t.cat==='Ingreso'||t.isIncome){byMonth[t.month].income+=usd;}
+    else{byMonth[t.month].expense+=usd;byMonth[t.month].cats[t.cat]=(byMonth[t.month].cats[t.cat]||0)+usd;}
+  });
+  return Object.entries(byMonth).map(([m,d])=>`${m}: ingresos ${fmt(d.income)}, gastos ${fmt(d.expense)}`).join(' | ');
+}
+
+// ANALYTICS
+let aC1=null,aC2=null;
+function renderAnalytics(){
+  const og=S.goals.find(g=>g.name.includes('Oxford'))||S.goals[0];
+  const months=['Mar','Abr','May','Jun','Jul','Ago','Sep'];
+  const pd=[];let bal=og.current;
+  for(let i=0;i<months.length;i++){pd.push(Math.round(bal));bal+=og.monthly;if(i===1)bal+=550;if(i===3)bal+=11475*0.5;}
+  document.getElementById('an-proj').textContent=fmt(pd[pd.length-1]);
+  if(aC1)aC1.destroy();if(aC2)aC2.destroy();
+  const pas=['#60d4b5','#60a5fa','#4ade80','#38bdf8','#818cf8'];
+  aC1=new Chart(document.getElementById('chart-an1').getContext('2d'),{type:'line',data:{labels:months,datasets:[{label:'Oxford Fund',data:pd,borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,0.09)',borderWidth:2.5,fill:true,tension:0.4,pointBackgroundColor:'#60a5fa',pointRadius:5},{label:'Meta $20k',data:Array(7).fill(20000),borderColor:'#60d4b5',borderDash:[5,4],borderWidth:1.5,pointRadius:0}]},options:{plugins:{legend:{labels:{color:'#5a7a99',font:{size:10}}}},scales:{y:{grid:{color:'#243447'},ticks:{color:'#5a7a99',callback:v=>'$'+v.toLocaleString()}},x:{grid:{display:false},ticks:{color:'#5a7a99'}}}}});
+  aC2=new Chart(document.getElementById('chart-an2').getContext('2d'),{type:'bar',data:{labels:['Renta','Hipoteca','TC','Comida','Admin','Apoyo/SS','Suscr.'],datasets:[{data:[445,637,550,177,79,211,65],backgroundColor:pas,borderRadius:8,borderWidth:0}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'#243447'},ticks:{color:'#5a7a99',callback:v=>'$'+v}},y:{grid:{display:false},ticks:{color:'#5a7a99'}}}}});
+}
+
+// EXPORT / IMPORT
+function saveRates(){S.rates.PEN=parseFloat(document.getElementById('r-pen').value)||3.30;S.rates.COP=parseFloat(document.getElementById('r-cop').value)||3750;save();alert('✅ Tipos de cambio guardados');}
+function saveBalances(){
+  S.balances.bbvaUSD=parseFloat(document.getElementById('s-bbva-usd').value)||0;
+  S.balances.bbvaPEN=parseFloat(document.getElementById('s-bbva-pen').value)||0;
+  S.balances.unfcu=parseFloat(document.getElementById('s-unfcu').value)||0;
+  S.balances.bancolombia=parseFloat(document.getElementById('s-bancolombia').value)||0;
+  S.tcBalance=parseFloat(document.getElementById('s-tc').value)||0;
+  save();
+  renderDash();
+  alert('✅ Saldos actualizados — el Dashboard ya refleja los nuevos valores');
+}
+function exportJSON(){const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='noriana-finanzas-2026.json';a.click();}
+function exportCSV(){const rows=[['Mes','Cat','Descripción','Monto','Moneda','USD','Cuenta','Estado','Notas']];S.transactions.forEach(t=>rows.push([t.month,t.cat,t.desc,t.amount,t.currency,t.usd,t.account,t.status,t.notes||'']));const csv=rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');const b=new Blob([csv],{type:'text/csv;charset=utf-8;'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='transacciones-2026.csv';a.click();}
+function importJSON(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);S={...S,...d};save();renderDash();alert('✅ Importado');}catch{alert('❌ Error');}};r.readAsText(f);}
+function resetData(){if(!confirm('¿Borrar todas las transacciones y volver a los datos iniciales?'))return;localStorage.removeItem('nori_v4');S.transactions=[...PRELOAD];S.chatLog=[];S.balances={bbvaUSD:4300,bbvaPEN:290,unfcu:800,bancolombia:0};S.tcBalance=1540;save();renderDash();alert('✅ Restablecido a datos iniciales');}
+
+window.addEventListener('load',()=>{
+  load();
+  document.getElementById('tx-date').value=new Date().toISOString().split('T')[0];
+  renderDash();
+  renderSidebarModules();
+});
+</script>
+<script>
+// Register Service Worker for PWA / offline
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/__Finance_Tracker__/sw.js', {scope: '/__Finance_Tracker__/'})
+      .then(r => console.log('SW registered', r.scope))
+      .catch(e => console.log('SW error', e));
+  });
+}
+
+// PWA install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const btn = document.getElementById('install-btn');
+  if (btn) btn.style.display = 'flex';
+});
+
+window.addEventListener('appinstalled', () => {
+  const btn = document.getElementById('install-btn');
+  if (btn) btn.style.display = 'none';
+  deferredPrompt = null;
+});
+
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(r => {
+      deferredPrompt = null;
+      const btn = document.getElementById('install-btn');
+      if (btn) btn.style.display = 'none';
+    });
+  }
+}
+</script>
+</body>
+</html>
