@@ -1,4 +1,4 @@
-const CACHE = 'mi-dinero-v1';
+const CACHE = 'mi-dinero-v2';
 const BASE = '/__Finance_Tracker__';
 const ASSETS = [
   BASE + '/',
